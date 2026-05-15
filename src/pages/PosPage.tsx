@@ -150,40 +150,40 @@ export default function PosPage() {
           </div>
 
           {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/50">
             {cart.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-neo-border gap-4">
-                <div className="w-20 h-20 rounded-full border-4 border-neo-border flex items-center justify-center bg-brand-yellow shadow-[4px_4px_0px_#1A1A1A]">
-                  <ShoppingCart size={32} />
+                <div className="w-24 h-24 rounded-full border-4 border-neo-border flex items-center justify-center bg-[#FFFBEB] shadow-[6px_6px_0px_#1A1A1A]">
+                  <ShoppingCart size={40} className="text-brand-orange" strokeWidth={2.5} />
                 </div>
                 <div className="text-center">
-                  <p className="font-black text-xl mb-1">السلة فارغة</p>
-                  <p className="text-sm font-bold text-gray-700">أضف بعض الأصناف للبدء</p>
+                  <p className="font-black text-2xl mb-1">السلة فارغة</p>
+                  <p className="text-base font-bold text-gray-600">أضف بعض الأصناف للبدء 🚀</p>
                 </div>
               </div>
             ) : (
               cart.map(item => (
-                <div key={item.id} className="flex items-center gap-3 bg-white p-3 rounded-xl border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A]">
-                  <div className="w-12 h-12 bg-[#FFFBEB] rounded-lg border-2 border-neo-border flex items-center justify-center text-2xl shadow-[1px_1px_0px_#1A1A1A]">
+                <div key={item.id} className="flex items-center gap-3 bg-white p-3 rounded-xl border-2 border-neo-border shadow-[4px_4px_0px_#1A1A1A] hover:-translate-y-[2px] hover:shadow-[6px_6px_0px_#1A1A1A] transition-all cursor-default">
+                  <div className="w-14 h-14 bg-[#FFFBEB] rounded-lg border-2 border-neo-border flex items-center justify-center text-3xl shadow-[2px_2px_0px_#1A1A1A]">
                     {item.emoji}
                   </div>
                   <div className="flex-1">
-                    <h4 className="font-black text-sm">{item.name}</h4>
-                    <p className="text-sm font-black text-brand-blue">{formatCurrency(item.price)}</p>
+                    <h4 className="font-black text-base line-clamp-1">{item.name}</h4>
+                    <p className="text-sm font-black text-brand-blue bg-brand-blue/10 inline-block px-2 py-0.5 rounded border-2 border-brand-blue/20 mt-1">{formatCurrency(item.price)}</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => updateQuantity(item.id, -1)}
-                      className="w-8 h-8 neo-btn bg-brand-red text-white p-0 flex items-center justify-center shadow-[1px_1px_0px_#1A1A1A] border-2 border-neo-border"
-                    >
-                      <Minus size={16} strokeWidth={3} />
-                    </button>
-                    <span className="font-black w-4 text-center text-lg">{item.quantity}</span>
+                  <div className="flex flex-col items-center gap-1 bg-[#FFFBEB] border-2 border-neo-border rounded-lg p-1.5 shadow-[2px_2px_0px_#1A1A1A]">
                     <button 
                       onClick={() => addToCart(item)}
-                      className="w-8 h-8 neo-btn bg-brand-green p-0 flex items-center justify-center shadow-[1px_1px_0px_#1A1A1A] border-2 border-neo-border"
+                      className="w-8 h-6 neo-btn bg-brand-green p-0 flex items-center justify-center border-2 border-neo-border rounded shadow-[1px_1px_0px_#1A1A1A] hover:bg-[#00C853] transition-colors"
                     >
-                      <Plus size={16} strokeWidth={3} />
+                      <Plus size={16} strokeWidth={4} />
+                    </button>
+                    <span className="font-black w-8 text-center text-lg">{item.quantity}</span>
+                    <button 
+                      onClick={() => updateQuantity(item.id, -1)}
+                      className="w-8 h-6 neo-btn bg-brand-red text-white p-0 flex items-center justify-center border-2 border-neo-border rounded shadow-[1px_1px_0px_#1A1A1A] hover:bg-red-600 transition-colors"
+                    >
+                      {item.quantity === 1 ? <Trash2 size={14} strokeWidth={3} /> : <Minus size={16} strokeWidth={4} />}
                     </button>
                   </div>
                 </div>
@@ -192,31 +192,31 @@ export default function PosPage() {
           </div>
 
           {/* Summary */}
-          <div className="p-4 border-t-2 border-neo-border bg-gray-50 space-y-2">
-            <div className="flex justify-between text-sm font-bold">
-              <span className="text-gray-500">المجموع الفرعي</span>
+          <div className="p-4 border-t-2 border-neo-border bg-[#FFFBEB] space-y-3 shadow-[inset_0_4px_0_rgba(0,0,0,0.02)]">
+            <div className="flex justify-between text-sm font-bold text-gray-700">
+              <span>المجموع الفرعي</span>
               <span>{formatCurrency(cartTotal)}</span>
             </div>
-            <div className="flex justify-between text-sm font-bold">
-              <span className="text-gray-500">الضريبة (١٥٪)</span>
+            <div className="flex justify-between text-sm font-bold text-gray-700">
+              <span>الضريبة (١٥٪)</span>
               <span>{formatCurrency(cartTax)}</span>
             </div>
-            <div className="flex justify-between text-lg font-black pt-2 border-t border-gray-200 mt-2">
+            <div className="flex justify-between items-center text-2xl font-black pt-3 border-t-2 border-neo-border mt-3 text-neo-text">
               <span>الإجمالي</span>
-              <span className="text-brand-orange">{formatCurrency(cartGrandTotal)}</span>
+              <span className="text-brand-orange bg-white px-3 py-1 rounded-lg border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A]">{formatCurrency(cartGrandTotal)}</span>
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="p-4 grid grid-cols-2 gap-3">
-            <button className="neo-btn bg-[#FFFBEB] border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] py-3 flex items-center justify-center gap-2 font-black text-neo-border hover:bg-brand-yellow transition-colors">
+          <div className="p-4 grid grid-cols-2 gap-3 bg-white border-t-2 border-neo-border">
+            <button className="neo-btn bg-[#FFFBEB] border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] py-3 flex items-center justify-center gap-2 font-black text-neo-border hover:bg-brand-yellow transition-all hover:-translate-y-[1px] hover:shadow-[3px_3px_0px_#1A1A1A]">
                تعليق
             </button>
-            <button className="neo-btn bg-brand-red text-white border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] py-3 flex items-center justify-center gap-2 font-black hover:bg-red-600 transition-colors" onClick={() => setCart([])}>
+            <button className="neo-btn bg-brand-red text-white border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] py-3 flex items-center justify-center gap-2 font-black hover:bg-red-600 transition-all hover:-translate-y-[1px] hover:shadow-[3px_3px_0px_#1A1A1A]" onClick={() => setCart([])}>
               مسح
             </button>
-            <button className="neo-btn bg-brand-green col-span-2 py-4 flex items-center justify-center gap-3 text-xl font-black border-2 border-neo-border shadow-[4px_4px_0px_#1A1A1A] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#1A1A1A] transition-all">
-              <CreditCard size={28} strokeWidth={2.5} />
+            <button className="neo-btn bg-brand-green col-span-2 py-4 flex items-center justify-center gap-3 text-xl font-black border-2 border-neo-border shadow-[4px_4px_0px_#1A1A1A] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#1A1A1A] transition-all text-neo-text">
+              <CreditCard size={28} strokeWidth={3} />
               دفع واستلام
             </button>
           </div>
