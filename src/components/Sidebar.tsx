@@ -27,15 +27,19 @@ const menuItems = [
   { id: "callcenter", label: "مركز الاتصال", icon: PhoneCall, color: "bg-brand-orange text-white" },
   { id: "orders", label: "الطلبات", icon: ShoppingBag, color: "bg-brand-orange" },
   { id: "menu", label: "قائمة الطعام", icon: UtensilsCrossed, color: "bg-brand-green" },
-  { id: "branches", label: "الفروع", icon: Store, color: "bg-brand-blue" },
-  { id: "staff", label: "الموظفين", icon: Users, color: "bg-brand-pink" },
+  { id: "branches", label: "الفروع", icon: Store, color: "bg-brand-blue", restricted: true },
+  { id: "staff", label: "الموظفين", icon: Users, color: "bg-brand-pink", restricted: true },
   { id: "customers", label: "العملاء", icon: Users, color: "bg-brand-cyan" },
-  { id: "analytics", label: "التقارير", icon: BarChart3, color: "bg-brand-purple" },
+  { id: "analytics", label: "التقارير", icon: BarChart3, color: "bg-brand-purple", restricted: true },
   { id: "reviews", label: "التقييمات", icon: MessageSquare, color: "bg-brand-cyan" },
   { id: "settings", label: "الإعدادات", icon: Settings, color: "bg-brand-lime" },
 ];
 
 export default function Sidebar({ activeTab, setActiveTab, collapsed, setCollapsed, onLogout }: SidebarProps) {
+  const userRole = localStorage.getItem("userRole") || "Staff";
+  const isOwner = userRole === "Owner";
+  const filteredMenuItems = menuItems.filter(item => !item.restricted || isOwner);
+
   return (
     <aside
       className={`fixed right-0 top-0 h-screen bg-neo-card border-l-2 border-neo-border z-50 flex flex-col transition-all duration-300 ${
@@ -57,7 +61,7 @@ export default function Sidebar({ activeTab, setActiveTab, collapsed, setCollaps
 
       {/* Menu */}
       <nav className="flex-1 p-3 space-y-2 overflow-y-auto">
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (

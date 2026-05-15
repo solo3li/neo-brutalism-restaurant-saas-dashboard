@@ -483,11 +483,7 @@ export function OrdersPage() {
   );
 }
 
-// --- PLACEHOLDERS ---
-export function AnalyticsPage() {
-    return <div className="p-20 text-center font-black text-2xl">قسم التقارير قيد التطوير... 📊</div>;
-}
-
+// Placeholder for Reviews
 export function ReviewsPage() {
     return <div className="p-20 text-center font-black text-2xl">قسم التقييمات قيد التطوير... 🏗️</div>;
 }

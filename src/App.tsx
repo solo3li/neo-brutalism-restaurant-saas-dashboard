@@ -13,7 +13,6 @@ import WeeklyRatings from "./components/WeeklyRatings";
 import MobileSidebar from "./components/MobileSidebar";
 import { useDashboardData } from "./hooks/useDashboardData";
 import {
-  AnalyticsPage,
   BranchesPage,
   MenuPage,
   OrdersPage,
@@ -21,6 +20,7 @@ import {
   SettingsPage,
   StaffPage,
 } from "./pages/ManagementPages";
+import { AnalyticsPage } from "./pages/AnalyticsPage";
 import PosPage from "./pages/PosPage";
 import CallCenterPage from "./pages/CallCenterPage";
 import CustomersPage from "./pages/CustomersPage";

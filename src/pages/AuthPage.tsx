@@ -22,9 +22,14 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
     try {
       if (isLogin) {
         const response = await authApi.login({ email, password });
-        localStorage.setItem("token", response.data.token);
+        const token = response.data.token;
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+        
+        localStorage.setItem("token", token);
         localStorage.setItem("tenantId", response.data.tenant.id);
         localStorage.setItem("userName", response.data.tenant.name);
+        localStorage.setItem("userRole", role);
         
         const host = window.location.hostname;
         const tenantSubdomain = response.data.tenant.subdomain;
@@ -50,9 +55,14 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
           password,
           fullName: restaurantName // simplify by using restaurant name as owner full name
         });
-        localStorage.setItem("token", response.data.token);
+        const token = response.data.token;
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+        localStorage.setItem("token", token);
         localStorage.setItem("tenantId", response.data.tenant.id);
         localStorage.setItem("userName", response.data.tenant.name);
+        localStorage.setItem("userRole", role);
         
         const host = window.location.hostname;
         const tenantSubdomain = response.data.tenant.subdomain;

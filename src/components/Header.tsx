@@ -90,7 +90,11 @@ export default function Header({ onToggleMobile }: HeaderProps) {
             <span className="text-xl">🏪</span>
             <div className="hidden sm:block">
               <p className="font-black text-sm leading-tight">{localStorage.getItem("userName") || "مدير النظام"}</p>
-              <p className="text-[10px] font-bold opacity-70 dir-ltr">{window.location.host}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-[10px] font-bold opacity-70 dir-ltr">{window.location.host}</p>
+                <span className="w-1 h-1 bg-neo-border rounded-full opacity-30"></span>
+                <p className="text-[10px] font-black text-brand-orange uppercase">{localStorage.getItem("userRole")}</p>
+              </div>
             </div>
           </div>
         </div>
