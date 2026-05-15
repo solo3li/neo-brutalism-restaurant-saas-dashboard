@@ -12,7 +12,8 @@ import {
   LogOut,
   PhoneCall,
   Building2,
-  ShieldCheck
+  ShieldCheck,
+  UserCheck
 } from "lucide-react";
 
 interface SidebarProps {
@@ -45,7 +46,8 @@ const menuGroups = [
       { id: "branches", label: "الفروع", icon: Store, color: "bg-brand-blue", restricted: true },
       { id: "departments", label: "الأقسام", icon: Building2, color: "bg-brand-orange", restricted: true },
       { id: "roles", label: "الأدوار والصلاحيات", icon: ShieldCheck, color: "bg-brand-purple", restricted: true },
-      { id: "staff", label: "الموظفين", icon: Users, color: "bg-brand-pink", restricted: true },
+      { id: "employees", label: "الموظفين", icon: Users, color: "bg-brand-pink", restricted: true },
+      { id: "staff", label: "طاقم العمل", icon: UserCheck, color: "bg-brand-cyan", restricted: true },
       { id: "customers", label: "العملاء", icon: Users, color: "bg-brand-cyan" },
       { id: "analytics", label: "التقارير", icon: BarChart3, color: "bg-brand-purple", restricted: true },
       { id: "reviews", label: "التقييمات", icon: MessageSquare, color: "bg-brand-cyan" },

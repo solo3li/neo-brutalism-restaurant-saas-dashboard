@@ -200,6 +200,7 @@ export default function App() {
                   return <DepartmentsPage />;
                 case "roles":
                   return <RolesPage />;
+                case "employees":
                 case "staff":
                   return <StaffPage />;
                 case "customers":
