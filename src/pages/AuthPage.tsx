@@ -9,6 +9,7 @@ interface AuthPageProps {
 export default function AuthPage({ onLogin }: AuthPageProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [restaurantName, setRestaurantName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,16 +25,55 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("tenantId", response.data.tenant.id);
         localStorage.setItem("userName", response.data.tenant.name);
-        onLogin();
+        
+        const host = window.location.hostname;
+        const tenantSubdomain = response.data.tenant.subdomain;
+        
+        if (host === "localhost" || host === "127.0.0.1") {
+            const port = window.location.port ? `:${window.location.port}` : '';
+            window.location.href = `http://${tenantSubdomain}.localhost${port}/`;
+        } else if (!host.startsWith(tenantSubdomain)) {
+            const domainParts = host.split('.');
+            if (domainParts.length > 2) {
+               domainParts.shift();
+            }
+            const baseDomain = domainParts.join('.');
+            const port = window.location.port ? `:${window.location.port}` : '';
+            window.location.href = `${window.location.protocol}//${tenantSubdomain}.${baseDomain}${port}/`;
+        } else {
+            onLogin();
+        }
       } else {
-        // Register not implemented in backend yet, just mock success for now
-        setTimeout(() => {
-          setLoading(false);
-          setIsLogin(true);
-        }, 1000);
+        const response = await authApi.register({
+          restaurantName,
+          email,
+          password,
+          fullName: restaurantName // simplify by using restaurant name as owner full name
+        });
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("tenantId", response.data.tenant.id);
+        localStorage.setItem("userName", response.data.tenant.name);
+        
+        const host = window.location.hostname;
+        const tenantSubdomain = response.data.tenant.subdomain;
+        
+        if (host === "localhost" || host === "127.0.0.1") {
+            const port = window.location.port ? `:${window.location.port}` : '';
+            window.location.href = `http://${tenantSubdomain}.localhost${port}/`;
+        } else if (!host.startsWith(tenantSubdomain)) {
+            const domainParts = host.split('.');
+            if (domainParts.length > 2) {
+               domainParts.shift();
+            }
+            const baseDomain = domainParts.join('.');
+            const port = window.location.port ? `:${window.location.port}` : '';
+            window.location.href = `${window.location.protocol}//${tenantSubdomain}.${baseDomain}${port}/`;
+        } else {
+            onLogin();
+        }
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "فشل تسجيل الدخول. يرجى التحقق من البيانات.");
+      setError(err.response?.data?.message || "فشل الطلب. يرجى التحقق من البيانات.");
       setLoading(false);
     }
   };
@@ -81,6 +121,8 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                   <input
                     type="text"
                     required
+                    value={restaurantName}
+                    onChange={(e) => setRestaurantName(e.target.value)}
                     placeholder="مثال: مطعم السحاب"
                     className="w-full bg-white/[0.05] border border-white/10 rounded-2xl py-3.5 pr-12 pl-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-brand-orange/50 focus:border-brand-orange/50 transition-all font-bold"
                   />

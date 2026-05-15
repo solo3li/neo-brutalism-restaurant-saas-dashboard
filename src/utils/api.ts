@@ -34,6 +34,7 @@ api.interceptors.request.use((config) => {
 
 export const authApi = {
   login: (credentials: any) => api.post<LoginResponse>('/auth/login', credentials),
+  register: (data: any) => api.post<LoginResponse>('/auth/register', data),
 };
 
 export const dashboardApi = {
@@ -42,6 +43,9 @@ export const dashboardApi = {
 
 export const branchesApi = {
   getAll: () => api.get<Branch[]>('/branches'),
+  create: (data: Partial<Branch>) => api.post<Branch>('/branches', data),
+  update: (id: string, data: Partial<Branch>) => api.put<Branch>(`/branches/${id}`, data),
+  delete: (id: string) => api.delete(`/branches/${id}`),
 };
 
 export const customersApi = {
@@ -50,11 +54,19 @@ export const customersApi = {
 
 export const staffApi = {
   getAll: () => api.get<Staff[]>('/staff'),
+  create: (data: any) => api.post<Staff>('/staff', data),
+  update: (id: string, data: Partial<Staff>) => api.put<Staff>(`/staff/${id}`, data),
+  delete: (id: string) => api.delete(`/staff/${id}`),
 };
 
 export const menuApi = {
   getCategories: () => api.get<MenuCategory[]>('/menu/categories'),
+  createCategory: (data: Partial<MenuCategory>) => api.post<MenuCategory>('/menu/categories', data),
+  deleteCategory: (id: number) => api.delete(`/menu/categories/${id}`),
   getItems: () => api.get<MenuItem[]>('/menu/items'),
+  createItem: (data: Partial<MenuItem>) => api.post<MenuItem>('/menu/items', data),
+  updateItem: (id: number, data: Partial<MenuItem>) => api.put<MenuItem>(`/menu/items/${id}`, data),
+  deleteItem: (id: number) => api.delete(`/menu/items/${id}`),
 };
 
 export const ordersApi = {

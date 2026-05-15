@@ -85,12 +85,12 @@ export default function Header({ onToggleMobile }: HeaderProps) {
             )}
           </div>
 
-          {/* Profile */}
+          {/* Profile & Subdomain */}
           <div className="neo-btn bg-brand-green px-3 py-2 flex items-center gap-2 cursor-pointer">
-            <span className="text-xl">👤</span>
+            <span className="text-xl">🏪</span>
             <div className="hidden sm:block">
-              <p className="font-black text-sm leading-tight">عبدالله الأحمد</p>
-              <p className="text-xs font-bold opacity-70">مدير</p>
+              <p className="font-black text-sm leading-tight">{localStorage.getItem("userName") || "مدير النظام"}</p>
+              <p className="text-[10px] font-bold opacity-70 dir-ltr">{window.location.host}</p>
             </div>
           </div>
         </div>
