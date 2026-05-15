@@ -10,7 +10,16 @@ import {
   DashboardStats 
 } from '../types/api';
 
-const API_BASE_URL = 'http://209.38.238.175:5109/api';
+const getApiBaseUrl = () => {
+  const { hostname } = window.location;
+  // If we're on a subdomain or custom domain, we still need to point to the backend port.
+  // In a real production setup, you'd use a reverse proxy to handle both on port 80/443.
+  // For now, we'll point to the VPS IP on port 5109.
+  const backendIP = '209.38.238.175';
+  return `http://${backendIP}:5109/api`;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -19,7 +28,19 @@ const api = axios.create({
 // Interceptor for Auth token and Tenant ID
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
-  const tenantId = localStorage.getItem('tenantId');
+  let tenantId = localStorage.getItem('tenantId');
+
+  // Attempt to extract tenant from subdomain if not in localStorage
+  const hostname = window.location.hostname;
+  const parts = hostname.split('.');
+  if (parts.length > 2 || (parts.length === 2 && !hostname.includes('localhost') && !/^\d/.test(hostname))) {
+    // Basic logic: first part is tenant ID
+    // e.g. 550e8400-e29b-41d4-a716-446655440000.209.38.238.175.sslip.io
+    const subdomain = parts[0];
+    if (subdomain !== 'www' && subdomain !== 'app') {
+      tenantId = subdomain;
+    }
+  }
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

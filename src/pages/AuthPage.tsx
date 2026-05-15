@@ -31,20 +31,12 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         localStorage.setItem("userName", response.data.tenant.name);
         localStorage.setItem("userRole", role);
         
-        const host = window.location.hostname;
-        const tenantSubdomain = response.data.tenant.subdomain;
-        
-        if (host === "localhost" || host === "127.0.0.1") {
-            const port = window.location.port ? `:${window.location.port}` : '';
-            window.location.href = `http://${tenantSubdomain}.localhost${port}/`;
-        } else if (!host.startsWith(tenantSubdomain)) {
-            const domainParts = host.split('.');
-            if (domainParts.length > 2) {
-               domainParts.shift();
-            }
-            const baseDomain = domainParts.join('.');
-            const port = window.location.port ? `:${window.location.port}` : '';
-            window.location.href = `${window.location.protocol}//${tenantSubdomain}.${baseDomain}${port}/`;
+        const loginUrl = response.data.tenant.loginUrl;
+        const currentUrl = window.location.href;
+
+        // Redirect to subdomain if not already there
+        if (loginUrl && !currentUrl.startsWith(loginUrl)) {
+            window.location.href = loginUrl;
         } else {
             onLogin();
         }
@@ -53,7 +45,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
           restaurantName,
           email,
           password,
-          fullName: restaurantName // simplify by using restaurant name as owner full name
+          fullName: restaurantName 
         });
         const token = response.data.token;
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -64,20 +56,10 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         localStorage.setItem("userName", response.data.tenant.name);
         localStorage.setItem("userRole", role);
         
-        const host = window.location.hostname;
-        const tenantSubdomain = response.data.tenant.subdomain;
+        const loginUrl = response.data.tenant.loginUrl;
         
-        if (host === "localhost" || host === "127.0.0.1") {
-            const port = window.location.port ? `:${window.location.port}` : '';
-            window.location.href = `http://${tenantSubdomain}.localhost${port}/`;
-        } else if (!host.startsWith(tenantSubdomain)) {
-            const domainParts = host.split('.');
-            if (domainParts.length > 2) {
-               domainParts.shift();
-            }
-            const baseDomain = domainParts.join('.');
-            const port = window.location.port ? `:${window.location.port}` : '';
-            window.location.href = `${window.location.protocol}//${tenantSubdomain}.${baseDomain}${port}/`;
+        if (loginUrl) {
+            window.location.href = loginUrl;
         } else {
             onLogin();
         }
