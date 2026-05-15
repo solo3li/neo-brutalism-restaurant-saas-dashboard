@@ -21,6 +21,7 @@ import {
   StaffPage,
 } from "./pages/ManagementPages";
 import PosPage from "./pages/PosPage";
+import AuthPage from "./pages/AuthPage";
 
 function DashboardPage() {
   return (
@@ -103,6 +104,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  if (!isLoggedIn) {
+    return <AuthPage onLogin={() => setIsLoggedIn(true)} />;
+  }
 
   return (
     <div className="min-h-screen bg-neo-bg font-cairo">
@@ -113,6 +119,7 @@ export default function App() {
           setActiveTab={setActiveTab}
           collapsed={sidebarCollapsed}
           setCollapsed={setSidebarCollapsed}
+          onLogout={() => setIsLoggedIn(false)}
         />
       </div>
 

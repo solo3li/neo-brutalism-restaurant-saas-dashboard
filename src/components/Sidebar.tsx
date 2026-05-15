@@ -9,6 +9,7 @@ import {
   MessageSquare,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -16,6 +17,7 @@ interface SidebarProps {
   setActiveTab: (tab: string) => void;
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
+  onLogout: () => void;
 }
 
 const menuItems = [
@@ -30,7 +32,7 @@ const menuItems = [
   { id: "settings", label: "الإعدادات", icon: Settings, color: "bg-brand-lime" },
 ];
 
-export default function Sidebar({ activeTab, setActiveTab, collapsed, setCollapsed }: SidebarProps) {
+export default function Sidebar({ activeTab, setActiveTab, collapsed, setCollapsed, onLogout }: SidebarProps) {
   return (
     <aside
       className={`fixed right-0 top-0 h-screen bg-neo-card border-l-2 border-neo-border z-50 flex flex-col transition-all duration-300 ${
@@ -73,11 +75,19 @@ export default function Sidebar({ activeTab, setActiveTab, collapsed, setCollaps
         })}
       </nav>
 
-      {/* Collapse toggle */}
-      <div className="p-3 border-t-2 border-neo-border">
+      {/* Logout & Collapse toggle */}
+      <div className="p-3 border-t-2 border-neo-border space-y-2">
+        <button
+          onClick={onLogout}
+          className="w-full neo-btn bg-brand-red text-white p-2 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+          <LogOut size={20} />
+          {!collapsed && <span className="font-bold text-sm">تسجيل الخروج</span>}
+        </button>
+        
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="w-full neo-btn bg-gray-100 p-2 flex items-center justify-center gap-2"
+          className="w-full neo-btn bg-gray-100 p-2 flex items-center justify-center gap-2 transition-all"
         >
           {collapsed ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
           {!collapsed && <span className="font-bold text-sm">تصغير القائمة</span>}
