@@ -55,6 +55,18 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Interceptor for Handling Expiry (401)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.clear();
+      window.location.href = "http://209.38.238.175";
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const authApi = {
   login: (credentials: any) => api.post<LoginResponse>('/auth/login', credentials),
   verifyMfa: (data: { email: string, code: string }) => api.post<LoginResponse>('/auth/verify-mfa', data),
