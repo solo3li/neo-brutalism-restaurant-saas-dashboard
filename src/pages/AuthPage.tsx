@@ -28,6 +28,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         
         localStorage.setItem("token", token);
         localStorage.setItem("tenantId", response.data.tenant.id);
+        localStorage.setItem("tenantSubdomain", response.data.tenant.subdomain);
         localStorage.setItem("userName", response.data.tenant.name);
         localStorage.setItem("userRole", role);
         
@@ -36,7 +37,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
 
         // Redirect to subdomain if not already there
         if (loginUrl && !currentUrl.startsWith(loginUrl)) {
-            window.location.href = loginUrl;
+            window.location.replace(loginUrl); // Use replace to prevent back-button loops
         } else {
             onLogin();
         }
@@ -53,13 +54,14 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
 
         localStorage.setItem("token", token);
         localStorage.setItem("tenantId", response.data.tenant.id);
+        localStorage.setItem("tenantSubdomain", response.data.tenant.subdomain);
         localStorage.setItem("userName", response.data.tenant.name);
         localStorage.setItem("userRole", role);
         
         const loginUrl = response.data.tenant.loginUrl;
         
         if (loginUrl) {
-            window.location.href = loginUrl;
+            window.location.replace(loginUrl);
         } else {
             onLogin();
         }

@@ -119,6 +119,26 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
 
+  // Multi-tenant redirection logic
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const tenantId = localStorage.getItem('tenantId');
+    const hostname = window.location.hostname;
+    const baseDomain = "209.38.238.175"; // Your VPS IP
+
+    // If on base domain and have session, we need to know where to go.
+    // However, without cookies we can't easily know the subdomain here if not in storage.
+    // But if it IS in storage (meaning they logged in here), redirect them.
+    if (token && tenantId && (hostname === baseDomain || hostname === "localhost")) {
+       // Since we don't have the full tenant list here, we'll rely on the backend to provide the LoginUrl
+       // or we've previously stored the subdomain string.
+       const storedSubdomain = localStorage.getItem('tenantSubdomain');
+       if (storedSubdomain && !hostname.startsWith(storedSubdomain)) {
+          window.location.href = `http://${storedSubdomain}.${baseDomain}.sslip.io`;
+       }
+    }
+  }, []);
+
   if (!isLoggedIn) {
     return <AuthPage onLogin={() => setIsLoggedIn(true)} />;
   }
@@ -126,6 +146,8 @@ export default function App() {
   const handleLogout = () => {
     localStorage.clear();
     setIsLoggedIn(false);
+    // Redirect to central login
+    window.location.href = "http://209.38.238.175";
   };
 
   return (
