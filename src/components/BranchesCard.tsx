@@ -1,7 +1,21 @@
-import { branches } from "../data/mockData";
+import { useState, useEffect } from "react";
 import { MapPin, Star } from "lucide-react";
+import { branchesApi } from "../utils/api";
+import { Branch } from "../types/api";
 
 export default function BranchesCard() {
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    branchesApi.getAll().then(res => {
+      setBranches(res.data);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return <div className="neo-card p-5 animate-pulse">جاري تحميل الفروع...</div>;
+
   return (
     <div className="neo-card p-5">
       <div className="mb-4">
@@ -21,16 +35,16 @@ export default function BranchesCard() {
               </div>
               <span
                 className={`neo-badge text-xs ${
-                  branch.status === "مفتوح" ? "bg-brand-green" : "bg-brand-red text-white"
+                  branch.status === "Open" || branch.status === "مفتوح" ? "bg-brand-green" : "bg-brand-red text-white"
                 }`}
               >
-                {branch.status}
+                {branch.status === "Open" ? "مفتوح" : branch.status === "Closed" ? "مغلق" : branch.status}
               </span>
             </div>
             <div className="grid grid-cols-3 gap-2 mt-2">
               <div className="text-center p-2 bg-gray-50 rounded-lg border border-gray-200">
                 <p className="text-xs text-gray-500 font-semibold">طلبات</p>
-                <p className="font-black text-sm">{branch.orders}</p>
+                <p className="font-black text-sm">{branch.ordersCount}</p>
               </div>
               <div className="text-center p-2 bg-gray-50 rounded-lg border border-gray-200">
                 <p className="text-xs text-gray-500 font-semibold">إيرادات</p>

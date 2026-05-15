@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { LogIn, UserPlus, Mail, Lock, Store, ArrowRight, ArrowLeft, Sparkles } from "lucide-react";
+import { authApi } from "../utils/api";
 
 interface AuthPageProps {
   onLogin: () => void;
@@ -8,15 +9,33 @@ interface AuthPageProps {
 export default function AuthPage({ onLogin }: AuthPageProps) {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate login
-    setTimeout(() => {
+    setError("");
+
+    try {
+      if (isLogin) {
+        const response = await authApi.login({ email, password });
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("tenantId", response.data.tenant.id);
+        localStorage.setItem("userName", response.data.tenant.name);
+        onLogin();
+      } else {
+        // Register not implemented in backend yet, just mock success for now
+        setTimeout(() => {
+          setLoading(false);
+          setIsLogin(true);
+        }, 1000);
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || "فشل تسجيل الدخول. يرجى التحقق من البيانات.");
       setLoading(false);
-      onLogin();
-    }, 1500);
+    }
   };
 
   return (
@@ -46,6 +65,12 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
             </p>
           </div>
 
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-sm font-bold text-center">
+              {error}
+            </div>
+          )}
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
@@ -70,6 +95,8 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                 <input
                   type="email"
                   required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@restaurant.com"
                   className="w-full bg-white/[0.05] border border-white/10 rounded-2xl py-3.5 pr-12 pl-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-brand-orange/50 focus:border-brand-orange/50 transition-all font-bold"
                 />
@@ -86,6 +113,8 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                 <input
                   type="password"
                   required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   className="w-full bg-white/[0.05] border border-white/10 rounded-2xl py-3.5 pr-12 pl-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-brand-orange/50 focus:border-brand-orange/50 transition-all font-bold"
                 />

@@ -12,9 +12,13 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { revenueData, ordersPerHour, categoryData } from "../data/mockData";
+import { RevenuePoint, HourlyOrders } from "../types/api";
 
-export function RevenueChart() {
+interface RevenueChartProps {
+  data: RevenuePoint[];
+}
+
+export function RevenueChart({ data }: RevenueChartProps) {
   return (
     <div className="neo-card p-5">
       <div className="flex items-center justify-between mb-4">
@@ -34,7 +38,7 @@ export function RevenueChart() {
         </div>
       </div>
       <ResponsiveContainer width="100%" height={280}>
-        <LineChart data={revenueData}>
+        <LineChart data={data}>
           <CartesianGrid strokeDasharray="0" stroke="#1A1A1A" vertical={false} />
           <XAxis dataKey="name" tick={{ fontSize: 12, fontWeight: 900, fill: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} tickLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} />
           <YAxis tick={{ fontSize: 12, fontWeight: 900, fill: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} tickLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} />
@@ -50,7 +54,8 @@ export function RevenueChart() {
           />
           <Line
             type="step"
-            dataKey="إيرادات"
+            dataKey="revenue"
+            name="إيرادات"
             stroke="#00E676"
             strokeWidth={4}
             dot={{ stroke: '#1A1A1A', strokeWidth: 2, fill: '#00E676', r: 6 }}
@@ -58,7 +63,8 @@ export function RevenueChart() {
           />
           <Line
             type="step"
-            dataKey="مصروفات"
+            dataKey="expenses"
+            name="مصروفات"
             stroke="#FF6B35"
             strokeWidth={4}
             dot={{ stroke: '#1A1A1A', strokeWidth: 2, fill: '#FF6B35', r: 6 }}
@@ -70,7 +76,11 @@ export function RevenueChart() {
   );
 }
 
-export function OrdersChart() {
+interface OrdersChartProps {
+  data: HourlyOrders[];
+}
+
+export function OrdersChart({ data }: OrdersChartProps) {
   return (
     <div className="neo-card p-5">
       <div className="mb-4">
@@ -78,7 +88,7 @@ export function OrdersChart() {
         <p className="text-sm text-gray-500 font-semibold">توزيع الطلبات اليوم</p>
       </div>
       <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={ordersPerHour}>
+        <BarChart data={data}>
           <CartesianGrid strokeDasharray="0" stroke="#1A1A1A" vertical={false} />
           <XAxis dataKey="hour" tick={{ fontSize: 11, fontWeight: 900, fill: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} tickLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} />
           <YAxis tick={{ fontSize: 12, fontWeight: 900, fill: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} tickLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} />
@@ -93,8 +103,8 @@ export function OrdersChart() {
             }}
             cursor={{ fill: 'rgba(26, 26, 26, 0.1)' }}
           />
-          <Bar dataKey="طلبات" radius={[6, 6, 0, 0]} strokeWidth={3} stroke="#1A1A1A">
-            {ordersPerHour.map((_, index) => (
+          <Bar dataKey="orders" name="طلبات" radius={[6, 6, 0, 0]} strokeWidth={3} stroke="#1A1A1A">
+            {data.map((_, index) => (
               <Cell
                 key={`cell-${index}`}
                 fill={
@@ -116,6 +126,14 @@ export function OrdersChart() {
 }
 
 export function CategoryChart() {
+  const categoryData = [
+    { name: "مشروبات ساخنة", value: 35, color: "#FF6B35" },
+    { name: "مشروبات باردة", value: 25, color: "#448AFF" },
+    { name: "وجبات رئيسية", value: 20, color: "#00E676" },
+    { name: "حلويات", value: 12, color: "#FF69B4" },
+    { name: "مقبلات", value: 8, color: "#FFD700" },
+  ];
+
   return (
     <div className="neo-card p-5">
       <div className="mb-4">

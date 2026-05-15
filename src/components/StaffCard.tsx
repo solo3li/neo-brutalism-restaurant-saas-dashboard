@@ -1,7 +1,21 @@
-import { staffMembers } from "../data/mockData";
+import { useState, useEffect } from "react";
 import { Star } from "lucide-react";
+import { staffApi } from "../utils/api";
+import { Staff } from "../types/api";
 
 export default function StaffCard() {
+  const [staff, setStaff] = useState<Staff[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    staffApi.getAll().then(res => {
+      setStaff(res.data);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return <div className="neo-card p-5 animate-pulse">جاري تحميل فريق العمل...</div>;
+
   return (
     <div className="neo-card p-5">
       <div className="mb-4">
@@ -9,7 +23,7 @@ export default function StaffCard() {
         <p className="text-sm text-gray-500 font-semibold">الحالة الحالية</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {staffMembers.map((member) => (
+        {staff.map((member) => (
           <div
             key={member.id}
             className="p-4 rounded-xl border-2 border-neo-border hover:bg-yellow-50 transition-colors flex items-center gap-3"
@@ -17,10 +31,10 @@ export default function StaffCard() {
             <div className="text-3xl">{member.avatar}</div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <h4 className="font-bold text-sm truncate">{member.name}</h4>
+                <h4 className="font-bold text-sm truncate">{member.fullName}</h4>
                 <span
                   className={`w-2.5 h-2.5 rounded-full border border-neo-border ${
-                    member.status === "متاح" ? "bg-brand-green" : "bg-brand-orange"
+                    member.status === "Available" || member.status === "متاح" ? "bg-brand-green" : "bg-brand-orange"
                   }`}
                 ></span>
               </div>

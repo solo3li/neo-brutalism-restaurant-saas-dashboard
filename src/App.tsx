@@ -11,6 +11,7 @@ import LiveStatus from "./components/LiveStatus";
 import QuickActions from "./components/QuickActions";
 import WeeklyRatings from "./components/WeeklyRatings";
 import MobileSidebar from "./components/MobileSidebar";
+import { useDashboardData } from "./hooks/useDashboardData";
 import {
   AnalyticsPage,
   BranchesPage,
@@ -26,13 +27,19 @@ import CustomersPage from "./pages/CustomersPage";
 import AuthPage from "./pages/AuthPage";
 
 function DashboardPage() {
+  const { stats, recentOrders, loading, error } = useDashboardData();
+  const userName = localStorage.getItem('userName') || "عبدالله";
+
+  if (loading) return <div className="p-20 text-center font-black text-2xl animate-pulse">جاري تحميل البيانات... 🍽️</div>;
+  if (error) return <div className="p-20 text-center font-black text-2xl text-brand-red">⚠️ {error}</div>;
+
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
       <div className="neo-card bg-gradient-to-l from-brand-yellow via-brand-orange to-brand-pink p-6 relative overflow-hidden">
         <div className="relative z-10">
           <h2 className="text-2xl font-black text-neo-text">
-            صباح الخير، عبدالله! ☀️
+            صباح الخير، {userName}! ☀️
           </h2>
           <p className="font-bold text-neo-text/80 mt-1">
             إليك ملخص أداء مطعمك اليوم. أداء رائع! 🚀
@@ -44,7 +51,7 @@ function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <StatsCards />
+      <StatsCards stats={stats} />
 
       {/* Live Status */}
       <LiveStatus />
@@ -54,12 +61,12 @@ function DashboardPage() {
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <RevenueChart />
-        <OrdersChart />
+        <RevenueChart data={stats?.revenueData || []} />
+        <OrdersChart data={stats?.ordersPerHour || []} />
       </div>
 
       {/* Orders Table */}
-      <OrdersTable />
+      <OrdersTable orders={recentOrders} />
 
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -110,14 +117,19 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
 
   if (!isLoggedIn) {
     return <AuthPage onLogin={() => setIsLoggedIn(true)} />;
   }
 
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsLoggedIn(false);
+  };
+
   return (
-    <div className="min-h-screen bg-neo-bg font-cairo">
+    <div className="min-h-screen bg-neo-bg font-cairo" dir="rtl">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <Sidebar
@@ -125,7 +137,7 @@ export default function App() {
           setActiveTab={setActiveTab}
           collapsed={sidebarCollapsed}
           setCollapsed={setSidebarCollapsed}
-          onLogout={() => setIsLoggedIn(false)}
+          onLogout={handleLogout}
         />
       </div>
 
