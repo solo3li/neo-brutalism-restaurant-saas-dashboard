@@ -1,5 +1,6 @@
 export interface LoginResponse {
   token: string;
+  requiresTwoFactor?: boolean;
   tenant: {
     id: string;
     name: string;
@@ -40,6 +41,8 @@ export interface Staff {
   departmentId?: string;
   departmentName?: string;
   roles?: string[];
+  twoFactorEnabled?: boolean;
+  mfaQrCodeUri?: string;
 }
 
 export interface Department {

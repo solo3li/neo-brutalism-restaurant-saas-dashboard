@@ -5,8 +5,7 @@ import {
   Minus, 
   Trash2, 
   CreditCard, 
-  ShoppingCart,
-  Clock
+  ShoppingCart
 } from "lucide-react";
 import { menuApi, ordersApi } from "../utils/api";
 import { MenuItem, MenuCategory } from "../types/api";

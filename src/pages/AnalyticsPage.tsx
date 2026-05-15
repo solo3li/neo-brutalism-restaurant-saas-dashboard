@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { 
-  BarChart3, TrendingUp, TrendingDown, Users, 
-  ShoppingBag, DollarSign, Calendar, Filter, 
-  ArrowUpRight, ArrowDownRight, RefreshCcw
+  BarChart3, TrendingUp, Users, 
+  ShoppingBag, DollarSign, RefreshCcw
 } from "lucide-react";
 import { dashboardApi, branchesApi } from "../utils/api";
 import { DashboardStats, Branch } from "../types/api";

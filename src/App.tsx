@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import StatsCards from "./components/StatsCards";
-import { RevenueChart, OrdersChart, CategoryChart } from "./components/Charts";
+import { RevenueChart, OrdersChart } from "./components/Charts";
 import OrdersTable from "./components/OrdersTable";
 import TopItems from "./components/TopItems";
 import BranchesCard from "./components/BranchesCard";

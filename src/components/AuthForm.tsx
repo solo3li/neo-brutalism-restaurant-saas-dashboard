@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogIn, UserPlus, Mail, Lock, Store, ArrowRight, Sparkles } from "lucide-react";
+import { LogIn, Mail, Lock, Store, ArrowRight, Sparkles } from "lucide-react";
 import { authApi } from "../utils/api";
 
 interface AuthFormProps {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Users, Search, Plus, Phone, MapPin, Trash2, History, ExternalLink } from "lucide-react";
+import { Users, Search, Plus, Phone, MapPin, Trash2, ShoppingBag } from "lucide-react";
 import { customersApi } from "../utils/api";
 import { Customer } from "../types/api";
 

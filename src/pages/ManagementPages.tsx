@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { 
-  Users, Plus, Star, Trash2, ShieldCheck, CalendarDays, 
-  ShoppingBag, UserCheck, UtensilsCrossed, Store, MapPin, 
-  Clock, CheckCircle2, XCircle, ChevronRight, Filter,
+  Users, Plus, Trash2, ShieldCheck, 
+  ShoppingBag, UtensilsCrossed, Store, MapPin, 
+  Clock, CheckCircle2, XCircle,
   Building2, Key, CheckSquare, Square, ShieldAlert, X
 } from "lucide-react";
 import { 
-  staffApi, menuApi, branchesApi, ordersApi, 
+  menuApi, branchesApi, ordersApi, 
   departmentsApi, rolesApi, employeesApi 
 } from "../utils/api";
 import { 
@@ -345,7 +345,7 @@ export function StaffPage() {
             <div className="flex-1 text-center sm:text-right">
                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
                   <h3 className="font-black text-xl">{emp.fullName}</h3>
-                  {emp.twoFactorEnabled && <ShieldCheck size={18} className="text-brand-green" title="مفعل للتحقق الثنائي" />}
+                  {emp.twoFactorEnabled && <ShieldCheck size={18} className="text-brand-green" />}
                </div>
                <p className="text-sm font-bold text-neo-text/50 mb-3">{emp.email}</p>
                <div className="flex flex-wrap justify-center sm:justify-start gap-2">
@@ -358,8 +358,8 @@ export function StaffPage() {
             <div className="flex flex-col items-center sm:items-end gap-3">
                <StatusPill label={emp.status} color={emp.status === "Available" ? "bg-brand-green" : "bg-brand-orange"} />
                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => handleShowQr(emp)} className="p-2 neo-btn bg-brand-yellow" title="عرض رمز QR"><Key size={16} /></button>
-                  <button onClick={() => handleToggleMfa(emp)} className={`p-2 neo-btn ${emp.twoFactorEnabled ? 'bg-brand-green' : 'bg-gray-200'}`} title={emp.twoFactorEnabled ? 'تعطيل التحقق' : 'تفعيل التحقق'}>
+                  <button onClick={() => handleShowQr(emp)} className="p-2 neo-btn bg-brand-yellow"><Key size={16} /></button>
+                  <button onClick={() => handleToggleMfa(emp)} className={`p-2 neo-btn ${emp.twoFactorEnabled ? 'bg-brand-green' : 'bg-gray-200'}`}>
                      <ShieldAlert size={16} />
                   </button>
                   <button className="p-2 neo-btn bg-white text-brand-red"><Trash2 size={16} /></button>
@@ -648,9 +648,9 @@ export function OrdersPage() {
     fetchOrders();
   }, []);
 
-  const handleStatusChange = async (id: string, newStatus: string) => {
+  const handleStatusChange = async (id: number, newStatus: string) => {
     try {
-      await ordersApi.updateStatus(id, newStatus);
+      await ordersApi.updateStatus(id.toString(), newStatus);
       fetchOrders();
     } catch (err) {
       alert("فشل تحديث الحالة");
