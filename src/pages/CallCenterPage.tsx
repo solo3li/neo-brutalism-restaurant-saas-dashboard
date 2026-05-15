@@ -41,12 +41,7 @@ export default function CallCenterPage() {
   const [selectedAddress, setSelectedAddress] = useState("");
   const [newAddress, setNewAddress] = useState("");
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
-
-  // Mock addresses for returning customers
-  const mockAddresses = [
-    "الرياض، حي العليا، شارع التحلية، مبنى ٤",
-    "الرياض، حي الملقا، طريق الملك فهد، فيلا ١٢",
-  ];
+  const [customerAddresses, setCustomerAddresses] = useState<string[]>([]);
 
   const categories = ["الكل", ...categoryData.map(c => c.name)];
 
@@ -92,15 +87,25 @@ export default function CallCenterPage() {
       if (found) {
         setIsCustomerFound(true);
         setCustomerName(found.name);
-        setSelectedAddress(mockAddresses[0]); // Select first mock address automatically
+        // Assuming we typed customer data accurately with optional array
+        const addresses = found.addresses || [];
+        setCustomerAddresses(addresses);
+        if (addresses.length > 0) {
+          setSelectedAddress(addresses[0]);
+          setIsAddingNewAddress(false);
+        } else {
+          setIsAddingNewAddress(true);
+        }
       } else {
         setIsCustomerFound(false);
         setCustomerName("");
+        setCustomerAddresses([]);
         setIsAddingNewAddress(true);
       }
     } else {
       setIsCustomerFound(false);
       setCustomerName("");
+      setCustomerAddresses([]);
     }
   };
 
@@ -311,7 +316,7 @@ export default function CallCenterPage() {
                         onChange={(e) => setSelectedAddress(e.target.value)}
                         className="neo-input w-full border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] font-bold bg-[#FFFBEB] appearance-none"
                       >
-                        {mockAddresses.map((addr, idx) => (
+                        {customerAddresses.map((addr, idx) => (
                           <option key={idx} value={addr}>{addr}</option>
                         ))}
                       </select>
