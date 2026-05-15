@@ -20,6 +20,7 @@ import {
   SettingsPage,
   StaffPage,
 } from "./pages/ManagementPages";
+import PosPage from "./pages/PosPage";
 
 function DashboardPage() {
   return (
@@ -77,6 +78,8 @@ function getPageContent(tab: string) {
   switch (tab) {
     case "dashboard":
       return <DashboardPage />;
+    case "pos":
+      return <PosPage />;
     case "orders":
       return <OrdersPage />;
     case "menu":
