@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { dashboardApi, ordersApi } from '../utils/api';
+import { dashboardApi, ordersApi, BACKEND_URL } from '../utils/api';
 import { DashboardStats, Order } from '../types/api';
 import * as signalR from '@microsoft/signalr';
 
@@ -37,7 +37,7 @@ export function useDashboardData() {
     if (!tenantId || !token) return;
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(`http://localhost:5000/orderHub`, {
+      .withUrl(`${BACKEND_URL}/orderHub`, {
         accessTokenFactory: () => token
       })
       .withAutomaticReconnect()

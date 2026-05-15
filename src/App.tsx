@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import StatsCards from "./components/StatsCards";
@@ -119,22 +119,34 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
 
-  // Multi-tenant redirection logic
+  // Multi-tenant redirection and session capture
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const tenantId = localStorage.getItem('tenantId');
     const hostname = window.location.hostname;
     const baseDomain = "209.38.238.175"; // Your VPS IP
+    const params = new URLSearchParams(window.location.search);
 
-    // If on base domain and have session, we need to know where to go.
-    // However, without cookies we can't easily know the subdomain here if not in storage.
-    // But if it IS in storage (meaning they logged in here), redirect them.
-    if (token && tenantId && (hostname === baseDomain || hostname === "localhost")) {
-       // Since we don't have the full tenant list here, we'll rely on the backend to provide the LoginUrl
-       // or we've previously stored the subdomain string.
-       const storedSubdomain = localStorage.getItem('tenantSubdomain');
-       if (storedSubdomain && !hostname.startsWith(storedSubdomain)) {
-          window.location.href = `http://${storedSubdomain}.${baseDomain}.sslip.io`;
+    // 1. Capture session from URL (sent from central login)
+    const tokenFromUrl = params.get("token");
+    if (tokenFromUrl) {
+      localStorage.setItem("token", tokenFromUrl);
+      localStorage.setItem("tenantId", params.get("tenantId") || "");
+      localStorage.setItem("tenantSubdomain", params.get("tenantSubdomain") || "");
+      localStorage.setItem("userName", params.get("userName") || "");
+      localStorage.setItem("userRole", params.get("userRole") || "");
+      
+      // Clean up URL and update state
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setIsLoggedIn(true);
+      return; // Stop here and let the next cycle handle redirection if needed
+    }
+
+    // 2. Force redirection from main domain to subdomain
+    const token = localStorage.getItem('token');
+    const storedSubdomain = localStorage.getItem('tenantSubdomain');
+
+    if (token && storedSubdomain && (hostname === baseDomain || hostname === "localhost")) {
+       if (!hostname.startsWith(storedSubdomain)) {
+          window.location.replace(`http://${storedSubdomain}.${baseDomain}.sslip.io`);
        }
     }
   }, []);

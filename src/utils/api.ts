@@ -10,16 +10,15 @@ import {
   DashboardStats 
 } from '../types/api';
 
-const getApiBaseUrl = () => {
-  const { hostname } = window.location;
-  // If we're on a subdomain or custom domain, we still need to point to the backend port.
+const getBackendUrl = () => {
   // In a real production setup, you'd use a reverse proxy to handle both on port 80/443.
   // For now, we'll point to the VPS IP on port 5109.
   const backendIP = '209.38.238.175';
-  return `http://${backendIP}:5109/api`;
+  return `http://${backendIP}:5109`;
 };
 
-const API_BASE_URL = getApiBaseUrl();
+export const BACKEND_URL = getBackendUrl();
+const API_BASE_URL = `${BACKEND_URL}/api`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,

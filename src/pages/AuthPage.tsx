@@ -35,9 +35,16 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         const loginUrl = response.data.tenant.loginUrl;
         const currentUrl = window.location.href;
 
-        // Redirect to subdomain if not already there
+        // Redirect to subdomain if not already there, passing token to share session
         if (loginUrl && !currentUrl.startsWith(loginUrl)) {
-            window.location.replace(loginUrl); // Use replace to prevent back-button loops
+            const redirectUrl = new URL(loginUrl);
+            redirectUrl.searchParams.set("token", token);
+            redirectUrl.searchParams.set("tenantSubdomain", response.data.tenant.subdomain);
+            redirectUrl.searchParams.set("userName", response.data.tenant.name);
+            redirectUrl.searchParams.set("userRole", role);
+            redirectUrl.searchParams.set("tenantId", response.data.tenant.id);
+            
+            window.location.replace(redirectUrl.toString());
         } else {
             onLogin();
         }
@@ -61,7 +68,14 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         const loginUrl = response.data.tenant.loginUrl;
         
         if (loginUrl) {
-            window.location.replace(loginUrl);
+            const redirectUrl = new URL(loginUrl);
+            redirectUrl.searchParams.set("token", token);
+            redirectUrl.searchParams.set("tenantSubdomain", response.data.tenant.subdomain);
+            redirectUrl.searchParams.set("userName", response.data.tenant.name);
+            redirectUrl.searchParams.set("userRole", role);
+            redirectUrl.searchParams.set("tenantId", response.data.tenant.id);
+            
+            window.location.replace(redirectUrl.toString());
         } else {
             onLogin();
         }
