@@ -26,7 +26,7 @@ import { AnalyticsPage } from "./pages/AnalyticsPage";
 import PosPage from "./pages/PosPage";
 import CallCenterPage from "./pages/CallCenterPage";
 import CustomersPage from "./pages/CustomersPage";
-import AuthPage from "./pages/AuthPage";
+import LandingPage from "./pages/LandingPage";
 
 function DashboardPage() {
   const { stats, recentOrders, loading, error } = useDashboardData();
@@ -137,7 +137,7 @@ export default function App() {
   }, []);
 
   if (!isLoggedIn) {
-    return <AuthPage onLogin={() => setIsLoggedIn(true)} />;
+    return <LandingPage onLogin={() => setIsLoggedIn(true)} />;
   }
 
   const handleLogout = () => {
