@@ -7,7 +7,10 @@ import {
   MenuCategory, 
   MenuItem, 
   Order, 
-  DashboardStats 
+  DashboardStats,
+  Department,
+  Role,
+  Permission
 } from '../types/api';
 
 const getBackendUrl = () => {
@@ -54,6 +57,7 @@ api.interceptors.request.use((config) => {
 
 export const authApi = {
   login: (credentials: any) => api.post<LoginResponse>('/auth/login', credentials),
+  verifyMfa: (data: { email: string, code: string }) => api.post<LoginResponse>('/auth/verify-mfa', data),
   register: (data: any) => api.post<LoginResponse>('/auth/register', data),
 };
 
@@ -85,6 +89,10 @@ export const staffApi = {
 export const employeesApi = {
   getAll: () => api.get<Staff[]>('/employees'),
   create: (data: any) => api.post<Staff>('/employees', data),
+  getMfaQr: (id: string) => api.get<{ qrCodeUri: string }>(`/employees/${id}/mfa-qr`),
+  toggleMfa: (id: string, enabled: boolean) => api.post(`/employees/${id}/toggle-mfa`, enabled, {
+     headers: { 'Content-Type': 'application/json' }
+  }),
   updateRoles: (id: string, data: { departmentId?: string, roles: string[] }) => 
     api.put(`/employees/${id}/roles`, data),
 };

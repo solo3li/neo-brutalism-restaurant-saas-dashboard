@@ -3,7 +3,7 @@ import {
   Users, Plus, Star, Trash2, ShieldCheck, CalendarDays, 
   ShoppingBag, UserCheck, UtensilsCrossed, Store, MapPin, 
   Clock, CheckCircle2, XCircle, ChevronRight, Filter,
-  Building2, Key, CheckSquare, Square
+  Building2, Key, CheckSquare, Square, ShieldAlert, X
 } from "lucide-react";
 import { 
   staffApi, menuApi, branchesApi, ordersApi, 
@@ -213,7 +213,7 @@ export function RolesPage() {
   );
 }
 
-// --- STAFF PAGE (Enhanced to EMPLOYEES) ---
+// --- STAFF PAGE (Enhanced to EMPLOYEES with MFA) ---
 export function StaffPage() {
   const [employees, setEmployees] = useState<Staff[]>([]);
   const [depts, setDepts] = useState<Department[]>([]);
@@ -221,6 +221,10 @@ export function StaffPage() {
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newEmp, setNewEmp] = useState({ fullName: "", email: "", password: "User123!", departmentId: "", roles: [] as string[] });
+  
+  const [showQrModal, setShowQrModal] = useState(false);
+  const [qrCodeUri, setQrCodeUri] = useState<string | null>(null);
+  const [mfaEmployeeName, setMfaEmployeeName] = useState("");
 
   const fetchData = async () => {
     try {
@@ -241,11 +245,34 @@ export function StaffPage() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await employeesApi.create(newEmp);
+      const res = await employeesApi.create(newEmp);
       setShowAddForm(false);
       setNewEmp({ fullName: "", email: "", password: "User123!", departmentId: "", roles: [] });
+      
+      if (res.data.mfaQrCodeUri) {
+         setQrCodeUri(res.data.mfaQrCodeUri);
+         setMfaEmployeeName(res.data.fullName);
+         setShowQrModal(true);
+      }
+      
       fetchData();
     } catch (err) { alert("فشل الإضافة"); }
+  };
+
+  const handleToggleMfa = async (emp: Staff) => {
+     try {
+        await employeesApi.toggleMfa(emp.id, !emp.twoFactorEnabled);
+        fetchData();
+     } catch (err) { alert("فشل تحديث حالة التحقق"); }
+  };
+
+  const handleShowQr = async (emp: Staff) => {
+     try {
+        const res = await employeesApi.getMfaQr(emp.id);
+        setQrCodeUri(res.data.qrCodeUri);
+        setMfaEmployeeName(emp.fullName);
+        setShowQrModal(true);
+     } catch (err) { alert("فشل تحميل رمز QR"); }
   };
 
   if (loading) return <div className="p-20 text-center font-black animate-pulse text-2xl">جاري تحميل الموظفين... 🤵</div>;
@@ -290,6 +317,25 @@ export function StaffPage() {
         </form>
       )}
 
+      {/* QR Code Modal */}
+      {showQrModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+           <div className="absolute inset-0 bg-neo-border/60 backdrop-blur-md" onClick={() => setShowQrModal(false)}></div>
+           <div className="relative bg-white neo-card p-8 max-w-md w-full text-center">
+              <button onClick={() => setShowQrModal(false)} className="absolute top-4 left-4 p-2 neo-btn bg-white"><X size={20}/></button>
+              <div className="w-20 h-20 bg-brand-yellow neo-card-flat flex items-center justify-center text-4xl mx-auto mb-6">🔐</div>
+              <h3 className="text-2xl font-black mb-2">إعداد التحقق الثنائي</h3>
+              <p className="font-bold text-neo-text/60 mb-6">اطلب من الموظف <span className="text-brand-orange">({mfaEmployeeName})</span> مسح هذا الرمز باستخدام تطبيق Google Authenticator</p>
+              
+              <div className="bg-white border-4 border-neo-border p-4 inline-block mb-6 shadow-[8px_8px_0px_#1A1A1A]">
+                 <img src={qrCodeUri || ""} alt="MFA QR Code" className="w-64 h-64" />
+              </div>
+
+              <button onClick={() => setShowQrModal(false)} className="w-full neo-btn bg-brand-green py-3 font-black text-lg">تم المسح</button>
+           </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {employees.map(emp => (
           <div key={emp.id} className="neo-card p-5 bg-white flex flex-col sm:flex-row gap-5 items-center sm:items-start group">
@@ -297,7 +343,10 @@ export function StaffPage() {
                {emp.avatar || "👤"}
             </div>
             <div className="flex-1 text-center sm:text-right">
-               <h3 className="font-black text-xl mb-1">{emp.fullName}</h3>
+               <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                  <h3 className="font-black text-xl">{emp.fullName}</h3>
+                  {emp.twoFactorEnabled && <ShieldCheck size={18} className="text-brand-green" title="مفعل للتحقق الثنائي" />}
+               </div>
                <p className="text-sm font-bold text-neo-text/50 mb-3">{emp.email}</p>
                <div className="flex flex-wrap justify-center sm:justify-start gap-2">
                   <span className="neo-badge bg-brand-orange/10 text-brand-orange text-[10px]">{emp.departmentName}</span>
@@ -309,7 +358,10 @@ export function StaffPage() {
             <div className="flex flex-col items-center sm:items-end gap-3">
                <StatusPill label={emp.status} color={emp.status === "Available" ? "bg-brand-green" : "bg-brand-orange"} />
                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="p-2 neo-btn bg-white"><ShieldCheck size={16} /></button>
+                  <button onClick={() => handleShowQr(emp)} className="p-2 neo-btn bg-brand-yellow" title="عرض رمز QR"><Key size={16} /></button>
+                  <button onClick={() => handleToggleMfa(emp)} className={`p-2 neo-btn ${emp.twoFactorEnabled ? 'bg-brand-green' : 'bg-gray-200'}`} title={emp.twoFactorEnabled ? 'تعطيل التحقق' : 'تفعيل التحقق'}>
+                     <ShieldAlert size={16} />
+                  </button>
                   <button className="p-2 neo-btn bg-white text-brand-red"><Trash2 size={16} /></button>
                </div>
             </div>

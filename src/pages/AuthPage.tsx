@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LogIn, UserPlus, Mail, Lock, Store, ArrowRight, ArrowLeft, Sparkles } from "lucide-react";
+import { LogIn, UserPlus, Mail, Lock, Store, ArrowRight, ArrowLeft, Sparkles, UserCheck } from "lucide-react";
 import { authApi } from "../utils/api";
 
 interface AuthPageProps {
@@ -8,24 +8,35 @@ interface AuthPageProps {
 
 export default function AuthPage({ onLogin }: AuthPageProps) {
   const [isLogin, setIsLogin] = useState(true);
-  const [loading, setLoading] = useState(false);
-  const [restaurantName, setRestaurantName] = useState("");
+  const [step, setStep] = useState<"auth" | "mfa">("auth");
+  const [mfaCode, setMfaCode] = useState("");
+  const [mfaEmail, setMfaEmail] = useState("");
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [restaurantName, setRestaurantName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-
+    setError(null);
     try {
       if (isLogin) {
         const response = await authApi.login({ email, password });
+        
+        if (response.data.requiresTwoFactor) {
+           setMfaEmail(email);
+           setStep("mfa");
+           setLoading(false);
+           return;
+        }
+
         const token = response.data.token;
         const payload = JSON.parse(atob(token.split('.')[1]));
         const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-        
+
         localStorage.setItem("token", token);
         localStorage.setItem("tenantId", response.data.tenant.id);
         localStorage.setItem("tenantSubdomain", response.data.tenant.subdomain);
@@ -35,7 +46,6 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         const loginUrl = response.data.tenant.loginUrl;
         const currentUrl = window.location.href;
 
-        // Redirect to subdomain if not already there, passing token to share session
         if (loginUrl && !currentUrl.startsWith(loginUrl)) {
             const redirectUrl = new URL(loginUrl);
             redirectUrl.searchParams.set("token", token);
@@ -43,7 +53,6 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
             redirectUrl.searchParams.set("userName", response.data.tenant.name);
             redirectUrl.searchParams.set("userRole", role);
             redirectUrl.searchParams.set("tenantId", response.data.tenant.id);
-            
             window.location.replace(redirectUrl.toString());
         } else {
             onLogin();
@@ -74,145 +83,234 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
             redirectUrl.searchParams.set("userName", response.data.tenant.name);
             redirectUrl.searchParams.set("userRole", role);
             redirectUrl.searchParams.set("tenantId", response.data.tenant.id);
-            
             window.location.replace(redirectUrl.toString());
         } else {
             onLogin();
         }
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || "فشل الطلب. يرجى التحقق من البيانات.");
+      setError(err.response?.data?.message || "حدث خطأ ما");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyMfa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await authApi.verifyMfa({ email: mfaEmail, code: mfaCode });
+      const token = response.data.token;
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const role = payload["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("tenantId", response.data.tenant.id);
+      localStorage.setItem("tenantSubdomain", response.data.tenant.subdomain);
+      localStorage.setItem("userName", response.data.tenant.name);
+      localStorage.setItem("userRole", role);
+      
+      const loginUrl = response.data.tenant.loginUrl;
+      const currentUrl = window.location.href;
+
+      if (loginUrl && !currentUrl.startsWith(loginUrl)) {
+          const redirectUrl = new URL(loginUrl);
+          redirectUrl.searchParams.set("token", token);
+          redirectUrl.searchParams.set("tenantSubdomain", response.data.tenant.subdomain);
+          redirectUrl.searchParams.set("userName", response.data.tenant.name);
+          redirectUrl.searchParams.set("userRole", role);
+          redirectUrl.searchParams.set("tenantId", response.data.tenant.id);
+          window.location.replace(redirectUrl.toString());
+      } else {
+          onLogin();
+      }
+    } catch (err: any) {
+      setError("رمز التحقق غير صحيح");
+    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-[#020617] font-cairo" dir="rtl">
-      {/* Dynamic Background Glows */}
-      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-brand-orange/20 blur-[120px] rounded-full animate-pulse"></div>
-      <div className="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-brand-blue/20 blur-[120px] rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
-      <div className="absolute top-[20%] left-[10%] w-[30%] h-[30%] bg-brand-purple/10 blur-[100px] rounded-full"></div>
-
-      {/* Grid Pattern Overlay */}
-      <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(#ffffff 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
-
-      {/* Auth Card */}
-      <div className="relative z-10 w-full max-w-[440px] px-4">
-        <div className="backdrop-blur-xl bg-white/[0.03] border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl overflow-hidden relative group">
-          {/* Top accent glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-brand-orange to-transparent"></div>
-
-          {/* Logo Section */}
-          <div className="flex flex-col items-center mb-10">
-            <div className="w-16 h-16 bg-gradient-to-br from-brand-orange to-brand-pink rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-lg shadow-brand-orange/20 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+    <div className="min-h-screen bg-brand-yellow flex items-center justify-center p-4 font-cairo" dir="rtl">
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 bg-white neo-card overflow-hidden">
+        {/* Left Side: Form */}
+        <div className="p-8 sm:p-12">
+          <div className="mb-10">
+            <div className="w-16 h-16 bg-brand-orange neo-card-flat flex items-center justify-center text-3xl mb-4">
               🍽️
             </div>
-            <h1 className="text-white text-3xl font-black tracking-tight mb-2">فودي بورد</h1>
-            <p className="text-white/50 font-bold text-sm">
-              {isLogin ? 'مرحباً بك مجدداً في نظام الإدارة' : 'ابدأ رحلة نجاح مطعمك اليوم'}
+            <h1 className="text-3xl font-black mb-2">
+              {step === "mfa" ? "التحقق بخطوتين" : (isLogin ? "مرحباً بعودتك!" : "ابدأ رحلتك معنا")}
+            </h1>
+            <p className="font-bold text-neo-text/50">
+              {step === "mfa" ? "أدخل الرمز من تطبيق Google Authenticator" : (isLogin ? "سجل دخولك لإدارة مطعمك بكفاءة" : "قم بإنشاء حساب لنظام إدارة المطاعم الخاص بك")}
             </p>
           </div>
 
           {error && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-sm font-bold text-center">
+            <div className="bg-brand-red/10 border-2 border-brand-red p-4 rounded-xl mb-6 text-brand-red font-bold text-sm">
               {error}
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
-            {!isLogin && (
+          {step === "mfa" ? (
+            <form onSubmit={handleVerifyMfa} className="space-y-5">
               <div className="space-y-2">
-                <label className="text-white/70 text-xs font-bold mr-1">اسم المطعم</label>
-                <div className="relative group">
-                  <Store className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-brand-orange transition-colors" size={18} />
+                <label className="text-sm font-black flex items-center gap-2">
+                  <Lock size={16} className="text-brand-orange" />
+                  رمز التحقق
+                </label>
+                <input
+                  required
+                  type="text"
+                  placeholder="000000"
+                  className="neo-input w-full text-center text-2xl tracking-[0.5em] font-black"
+                  value={mfaCode}
+                  onChange={(e) => setMfaCode(e.target.value)}
+                  maxLength={6}
+                />
+              </div>
+              <button
+                disabled={loading}
+                type="submit"
+                className="w-full neo-btn bg-brand-orange py-4 font-black flex items-center justify-center gap-2 text-lg disabled:opacity-50"
+              >
+                {loading ? "جاري التحقق..." : "تأكيد الدخول"}
+                {!loading && <ArrowRight size={20} />}
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep("auth")}
+                className="w-full text-center font-bold text-neo-text/60 hover:text-neo-text"
+              >
+                العودة لتسجيل الدخول
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleLogin} className="space-y-5">
+              {!isLogin && (
+                <div className="space-y-2">
+                  <label className="text-sm font-black flex items-center gap-2">
+                    <Store size={16} className="text-brand-orange" />
+                    اسم المطعم
+                  </label>
                   <input
-                    type="text"
                     required
+                    type="text"
+                    placeholder="مطعم فودي"
+                    className="neo-input w-full"
                     value={restaurantName}
                     onChange={(e) => setRestaurantName(e.target.value)}
-                    placeholder="مثال: مطعم السحاب"
-                    className="w-full bg-white/[0.05] border border-white/10 rounded-2xl py-3.5 pr-12 pl-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-brand-orange/50 focus:border-brand-orange/50 transition-all font-bold"
                   />
                 </div>
-              </div>
-            )}
+              )}
 
-            <div className="space-y-2">
-              <label className="text-white/70 text-xs font-bold mr-1">البريد الإلكتروني</label>
-              <div className="relative group">
-                <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-brand-orange transition-colors" size={18} />
+              <div className="space-y-2">
+                <label className="text-sm font-black flex items-center gap-2">
+                  <Mail size={16} className="text-brand-orange" />
+                  البريد الإلكتروني
+                </label>
                 <input
-                  type="email"
                   required
+                  type="email"
+                  placeholder="admin@foody.com"
+                  className="neo-input w-full"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@restaurant.com"
-                  className="w-full bg-white/[0.05] border border-white/10 rounded-2xl py-3.5 pr-12 pl-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-brand-orange/50 focus:border-brand-orange/50 transition-all font-bold"
                 />
               </div>
-            </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center mr-1">
-                <label className="text-white/70 text-xs font-bold">كلمة المرور</label>
-                {isLogin && <button type="button" className="text-brand-orange text-[10px] font-black hover:underline">نسيت كلمة المرور؟</button>}
-              </div>
-              <div className="relative group">
-                <Lock className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-brand-orange transition-colors" size={18} />
+              <div className="space-y-2">
+                <label className="text-sm font-black flex items-center gap-2">
+                  <Lock size={16} className="text-brand-orange" />
+                  كلمة المرور
+                </label>
                 <input
-                  type="password"
                   required
+                  type="password"
+                  placeholder="••••••••"
+                  className="neo-input w-full"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full bg-white/[0.05] border border-white/10 rounded-2xl py-3.5 pr-12 pl-4 text-white placeholder:text-white/20 focus:outline-none focus:ring-2 focus:ring-brand-orange/50 focus:border-brand-orange/50 transition-all font-bold"
                 />
               </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-brand-orange to-brand-pink text-white font-black py-4 rounded-2xl shadow-xl shadow-brand-orange/20 hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3 relative overflow-hidden group/btn"
-            >
-              {loading ? (
-                <div className="w-6 h-6 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-              ) : (
-                <>
-                  <span>{isLogin ? 'تسجيل الدخول' : 'إنشاء حساب جديد'}</span>
-                  {isLogin ? <LogIn size={20} /> : <UserPlus size={20} />}
-                </>
-              )}
-              {/* Shine effect */}
-              <div className="absolute inset-0 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-            </button>
-          </form>
-
-          {/* Switch Section */}
-          <div className="mt-8 pt-8 border-t border-white/5 text-center">
-            <p className="text-white/40 text-sm font-bold">
-              {isLogin ? 'ليس لديك حساب؟' : 'لديك حساب بالفعل؟'}
               <button
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-white font-black mr-2 hover:text-brand-orange transition-colors flex items-center gap-1 inline-flex"
+                disabled={loading}
+                type="submit"
+                className="w-full neo-btn bg-brand-orange py-4 font-black flex items-center justify-center gap-2 text-lg disabled:opacity-50"
               >
-                {isLogin ? 'سجل الآن' : 'سجل دخولك'}
-                {isLogin ? <ArrowLeft size={14} className="mt-0.5" /> : <ArrowRight size={14} className="mt-0.5" />}
+                {loading ? "جاري المعالجة..." : (isLogin ? "دخول" : "إنشاء حساب")}
+                {!loading && <ArrowRight size={20} />}
               </button>
-            </p>
-          </div>
+            </form>
+          )}
+
+          {step === "auth" && (
+            <div className="mt-8 pt-8 border-t-2 border-gray-100 text-center">
+              <p className="font-bold text-neo-text/60 mb-4">
+                {isLogin ? "ليس لديك حساب؟" : "لديك حساب بالفعل؟"}
+              </p>
+              <button
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError(null);
+                }}
+                className="neo-btn bg-gray-50 px-8 py-3 font-black flex items-center gap-2 mx-auto"
+              >
+                {isLogin ? <UserPlus size={18} /> : <LogIn size={18} />}
+                {isLogin ? "سجل مطعمك الآن" : "سجل دخولك"}
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Footer info */}
-        <div className="mt-8 text-center">
-          <div className="flex items-center justify-center gap-2 text-white/20 mb-2">
-            <Sparkles size={14} />
-            <span className="text-[10px] font-black uppercase tracking-widest">Premium Management Suite</span>
+        {/* Right Side: Features */}
+        <div className="hidden lg:flex bg-neo-bg border-r-2 border-neo-border p-12 flex-col justify-between relative overflow-hidden">
+          <div className="relative z-10">
+            <h2 className="text-4xl font-black mb-8 leading-tight">
+              نظام واحد متكامل<br />
+              <span className="text-brand-orange">لإدارة مطعمك</span> بكل ذكاء
+            </h2>
+            
+            <div className="space-y-6">
+              {[
+                { title: "إدارة الفروع", desc: "تتبع أداء جميع فروعك من مكان واحد وفي الوقت الفعلي.", icon: Store },
+                { title: "نظام POS سريع", icon: ShoppingBag, desc: "نقطة بيع متطورة مصممة للسرعة وسهولة الاستخدام." },
+                { title: "تحليلات متقدمة", icon: BarChart3, desc: "تقارير مفصلة عن المبيعات، المخزون، وأداء الموظفين." },
+                { title: "الأدوار والصلاحيات", icon: ShieldCheck, desc: "نظام RBAC متطور لتخصيص وصول الموظفين." }
+              ].map((f, i) => (
+                <div key={i} className="flex gap-4 items-start group">
+                  <div className="w-12 h-12 bg-white neo-card-flat shrink-0 flex items-center justify-center text-brand-orange group-hover:bg-brand-orange group-hover:text-white transition-colors">
+                    <f.icon size={24} />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-lg">{f.title}</h3>
+                    <p className="font-bold text-neo-text/40 text-sm leading-relaxed">{f.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-          <p className="text-white/20 text-xs font-bold">© 2026 فودي بورد. جميع الحقوق محفوظة.</p>
+
+          <div className="relative z-10 pt-10">
+            <div className="neo-card bg-brand-purple p-6 text-white">
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles size={20} className="text-brand-yellow" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Premium Management Suite</span>
+              </div>
+              <p className="text-white/20 text-xs font-bold">© 2026 فودي بورد. جميع الحقوق محفوظة.</p>
+            </div>
+          </div>
+          
+          {/* Decorative Elements */}
+          <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-brand-yellow/10 rounded-full blur-3xl"></div>
+          <div className="absolute top-1/2 -right-32 w-80 h-80 bg-brand-orange/5 rounded-full blur-3xl"></div>
         </div>
       </div>
     </div>
   );
 }
+import { ShoppingBag, BarChart3, ShieldCheck } from "lucide-react";
