@@ -1,6 +1,6 @@
 import {
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   BarChart,
   Bar,
   XAxis,
@@ -34,44 +34,37 @@ export function RevenueChart() {
         </div>
       </div>
       <ResponsiveContainer width="100%" height={280}>
-        <AreaChart data={revenueData}>
-          <defs>
-            <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#00E676" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#00E676" stopOpacity={0} />
-            </linearGradient>
-            <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#FF6B35" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#FF6B35" stopOpacity={0} />
-            </linearGradient>
-          </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-          <XAxis dataKey="name" tick={{ fontSize: 12, fontWeight: 700 }} />
-          <YAxis tick={{ fontSize: 12, fontWeight: 700 }} />
+        <LineChart data={revenueData}>
+          <CartesianGrid strokeDasharray="0" stroke="#1A1A1A" vertical={false} />
+          <XAxis dataKey="name" tick={{ fontSize: 12, fontWeight: 900, fill: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} tickLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} />
+          <YAxis tick={{ fontSize: 12, fontWeight: 900, fill: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} tickLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} />
           <Tooltip
             contentStyle={{
-              background: "#fff",
+              background: "#FFFBEB",
               border: "2px solid #1A1A1A",
               borderRadius: "8px",
-              boxShadow: "2px 2px 0px #1A1A1A",
-              fontWeight: 700,
+              boxShadow: "3px 3px 0px #1A1A1A",
+              fontWeight: 900,
+              color: "#1A1A1A"
             }}
           />
-          <Area
-            type="monotone"
+          <Line
+            type="step"
             dataKey="إيرادات"
             stroke="#00E676"
-            strokeWidth={2}
-            fill="url(#colorRevenue)"
+            strokeWidth={4}
+            dot={{ stroke: '#1A1A1A', strokeWidth: 2, fill: '#00E676', r: 6 }}
+            activeDot={{ stroke: '#1A1A1A', strokeWidth: 2, fill: '#00E676', r: 8 }}
           />
-          <Area
-            type="monotone"
+          <Line
+            type="step"
             dataKey="مصروفات"
             stroke="#FF6B35"
-            strokeWidth={2}
-            fill="url(#colorExpenses)"
+            strokeWidth={4}
+            dot={{ stroke: '#1A1A1A', strokeWidth: 2, fill: '#FF6B35', r: 6 }}
+            activeDot={{ stroke: '#1A1A1A', strokeWidth: 2, fill: '#FF6B35', r: 8 }}
           />
-        </AreaChart>
+        </LineChart>
       </ResponsiveContainer>
     </div>
   );
@@ -86,19 +79,21 @@ export function OrdersChart() {
       </div>
       <ResponsiveContainer width="100%" height={280}>
         <BarChart data={ordersPerHour}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-          <XAxis dataKey="hour" tick={{ fontSize: 11, fontWeight: 700 }} />
-          <YAxis tick={{ fontSize: 12, fontWeight: 700 }} />
+          <CartesianGrid strokeDasharray="0" stroke="#1A1A1A" vertical={false} />
+          <XAxis dataKey="hour" tick={{ fontSize: 11, fontWeight: 900, fill: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} tickLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} />
+          <YAxis tick={{ fontSize: 12, fontWeight: 900, fill: '#1A1A1A' }} axisLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} tickLine={{ stroke: '#1A1A1A', strokeWidth: 2 }} />
           <Tooltip
             contentStyle={{
-              background: "#fff",
+              background: "#FFFBEB",
               border: "2px solid #1A1A1A",
               borderRadius: "8px",
-              boxShadow: "2px 2px 0px #1A1A1A",
-              fontWeight: 700,
+              boxShadow: "3px 3px 0px #1A1A1A",
+              fontWeight: 900,
+              color: "#1A1A1A"
             }}
+            cursor={{ fill: 'rgba(26, 26, 26, 0.1)' }}
           />
-          <Bar dataKey="طلبات" radius={[6, 6, 0, 0]} strokeWidth={2} stroke="#1A1A1A">
+          <Bar dataKey="طلبات" radius={[6, 6, 0, 0]} strokeWidth={3} stroke="#1A1A1A">
             {ordersPerHour.map((_, index) => (
               <Cell
                 key={`cell-${index}`}
@@ -136,10 +131,10 @@ export function CategoryChart() {
             outerRadius={100}
             innerRadius={50}
             dataKey="value"
-            strokeWidth={2}
+            strokeWidth={3}
             stroke="#1A1A1A"
             label={({ name, value }) => `${name} ${value}%`}
-            labelLine={{ strokeWidth: 2 }}
+            labelLine={{ strokeWidth: 2, stroke: "#1A1A1A" }}
           >
             {categoryData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
@@ -147,12 +142,14 @@ export function CategoryChart() {
           </Pie>
           <Tooltip
             contentStyle={{
-              background: "#fff",
+              background: "#FFFBEB",
               border: "2px solid #1A1A1A",
               borderRadius: "8px",
-              boxShadow: "2px 2px 0px #1A1A1A",
-              fontWeight: 700,
+              boxShadow: "3px 3px 0px #1A1A1A",
+              fontWeight: 900,
+              color: "#1A1A1A"
             }}
+            itemStyle={{ color: "#1A1A1A" }}
           />
         </PieChart>
       </ResponsiveContainer>

@@ -27,6 +27,7 @@ const menuItems = [
   { id: "menu", label: "قائمة الطعام", icon: UtensilsCrossed, color: "bg-brand-green" },
   { id: "branches", label: "الفروع", icon: Store, color: "bg-brand-blue" },
   { id: "staff", label: "الموظفين", icon: Users, color: "bg-brand-pink" },
+  { id: "customers", label: "العملاء", icon: Users, color: "bg-brand-cyan" },
   { id: "analytics", label: "التقارير", icon: BarChart3, color: "bg-brand-purple" },
   { id: "reviews", label: "التقييمات", icon: MessageSquare, color: "bg-brand-cyan" },
   { id: "settings", label: "الإعدادات", icon: Settings, color: "bg-brand-lime" },

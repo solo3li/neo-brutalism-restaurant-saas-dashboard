@@ -21,6 +21,7 @@ import {
   StaffPage,
 } from "./pages/ManagementPages";
 import PosPage from "./pages/PosPage";
+import CustomersPage from "./pages/CustomersPage";
 import AuthPage from "./pages/AuthPage";
 
 function DashboardPage() {
@@ -89,6 +90,8 @@ function getPageContent(tab: string) {
       return <BranchesPage />;
     case "staff":
       return <StaffPage />;
+    case "customers":
+      return <CustomersPage />;
     case "analytics":
       return <AnalyticsPage />;
     case "reviews":

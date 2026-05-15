@@ -91,13 +91,13 @@ export default function PosPage() {
         {/* Search and Filters */}
         <div className="neo-card p-4 flex flex-col sm:flex-row gap-4 items-center">
           <div className="relative flex-1 w-full">
-            <Search size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={20} className="absolute right-3 top-1/2 -translate-y-1/2 text-neo-border" strokeWidth={3} />
             <input 
               type="text" 
               placeholder="ابحث عن صنف..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="neo-input w-full pr-10"
+              className="neo-input w-full pr-10 border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] font-bold"
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
@@ -105,7 +105,7 @@ export default function PosPage() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`neo-btn px-4 py-2 whitespace-nowrap text-sm ${activeCategory === cat ? 'bg-brand-yellow' : 'bg-white'}`}
+                className={`neo-btn px-4 py-2 whitespace-nowrap text-sm font-black border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] transition-all hover:-translate-y-[1px] hover:shadow-[3px_3px_0px_#1A1A1A] ${activeCategory === cat ? 'bg-brand-yellow' : 'bg-white'}`}
               >
                 {cat}
               </button>
@@ -120,16 +120,16 @@ export default function PosPage() {
               <button 
                 key={item.id}
                 onClick={() => addToCart(item)}
-                className="neo-card p-4 flex flex-col items-center text-center group hover:bg-yellow-50 transition-colors"
+                className="neo-card p-4 flex flex-col items-center text-center group hover:bg-brand-yellow transition-colors relative overflow-hidden"
               >
-                <div className="w-16 h-16 bg-neo-bg neo-card-flat flex items-center justify-center text-4xl mb-3 group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-[#FFFBEB] rounded-xl border-2 border-neo-border flex items-center justify-center text-4xl mb-3 group-hover:scale-110 transition-transform shadow-[2px_2px_0px_#1A1A1A]">
                   {item.emoji}
                 </div>
-                <h3 className="font-black text-sm mb-1 line-clamp-1">{item.name}</h3>
-                <p className="text-xs font-bold text-gray-500 mb-2">{item.category}</p>
-                <p className="font-black text-brand-blue">{formatCurrency(item.price)}</p>
+                <h3 className="font-black text-sm mb-1 line-clamp-1 group-hover:text-neo-border">{item.name}</h3>
+                <p className="text-xs font-bold text-gray-700 mb-2">{item.category}</p>
+                <p className="font-black text-xl text-brand-blue">{formatCurrency(item.price)}</p>
                 <div className="mt-3 w-full opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="neo-btn bg-brand-green w-full py-1 text-xs">إضافة</div>
+                  <div className="neo-btn bg-brand-green w-full py-2 text-sm font-black border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A]">إضافة</div>
                 </div>
               </button>
             ))}
@@ -152,33 +152,38 @@ export default function PosPage() {
           {/* Cart Items */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {cart.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-3 opacity-50">
-                <ShoppingCart size={48} />
-                <p className="font-black">السلة فارغة</p>
+              <div className="h-full flex flex-col items-center justify-center text-neo-border gap-4">
+                <div className="w-20 h-20 rounded-full border-4 border-neo-border flex items-center justify-center bg-brand-yellow shadow-[4px_4px_0px_#1A1A1A]">
+                  <ShoppingCart size={32} />
+                </div>
+                <div className="text-center">
+                  <p className="font-black text-xl mb-1">السلة فارغة</p>
+                  <p className="text-sm font-bold text-gray-700">أضف بعض الأصناف للبدء</p>
+                </div>
               </div>
             ) : (
               cart.map(item => (
-                <div key={item.id} className="flex items-center gap-3 bg-neo-bg/30 p-2 rounded-xl border-2 border-dashed border-gray-200">
-                  <div className="w-12 h-12 bg-white neo-card-flat flex items-center justify-center text-2xl">
+                <div key={item.id} className="flex items-center gap-3 bg-white p-3 rounded-xl border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A]">
+                  <div className="w-12 h-12 bg-[#FFFBEB] rounded-lg border-2 border-neo-border flex items-center justify-center text-2xl shadow-[1px_1px_0px_#1A1A1A]">
                     {item.emoji}
                   </div>
                   <div className="flex-1">
                     <h4 className="font-black text-sm">{item.name}</h4>
-                    <p className="text-xs font-bold text-brand-blue">{formatCurrency(item.price)}</p>
+                    <p className="text-sm font-black text-brand-blue">{formatCurrency(item.price)}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={() => updateQuantity(item.id, -1)}
-                      className="w-8 h-8 neo-btn bg-white p-0 flex items-center justify-center"
+                      className="w-8 h-8 neo-btn bg-brand-red text-white p-0 flex items-center justify-center shadow-[1px_1px_0px_#1A1A1A] border-2 border-neo-border"
                     >
-                      <Minus size={14} />
+                      <Minus size={16} strokeWidth={3} />
                     </button>
-                    <span className="font-black w-4 text-center">{item.quantity}</span>
+                    <span className="font-black w-4 text-center text-lg">{item.quantity}</span>
                     <button 
                       onClick={() => addToCart(item)}
-                      className="w-8 h-8 neo-btn bg-brand-yellow p-0 flex items-center justify-center"
+                      className="w-8 h-8 neo-btn bg-brand-green p-0 flex items-center justify-center shadow-[1px_1px_0px_#1A1A1A] border-2 border-neo-border"
                     >
-                      <Plus size={14} />
+                      <Plus size={16} strokeWidth={3} />
                     </button>
                   </div>
                 </div>
@@ -204,33 +209,33 @@ export default function PosPage() {
 
           {/* Action Buttons */}
           <div className="p-4 grid grid-cols-2 gap-3">
-            <button className="neo-btn bg-white py-3 flex items-center justify-center gap-2">
+            <button className="neo-btn bg-[#FFFBEB] border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] py-3 flex items-center justify-center gap-2 font-black text-neo-border hover:bg-brand-yellow transition-colors">
                تعليق
             </button>
-            <button className="neo-btn bg-brand-red text-white py-3 flex items-center justify-center gap-2" onClick={() => setCart([])}>
+            <button className="neo-btn bg-brand-red text-white border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] py-3 flex items-center justify-center gap-2 font-black hover:bg-red-600 transition-colors" onClick={() => setCart([])}>
               مسح
             </button>
-            <button className="neo-btn bg-brand-green col-span-2 py-4 flex items-center justify-center gap-3 text-lg">
-              <CreditCard size={24} />
+            <button className="neo-btn bg-brand-green col-span-2 py-4 flex items-center justify-center gap-3 text-xl font-black border-2 border-neo-border shadow-[4px_4px_0px_#1A1A1A] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#1A1A1A] transition-all">
+              <CreditCard size={28} strokeWidth={2.5} />
               دفع واستلام
             </button>
           </div>
         </div>
 
         {/* Quick Payment Info */}
-        <div className="neo-card p-4 bg-brand-cyan">
-          <div className="flex items-center gap-3 mb-3">
-            <Clock size={18} />
+        <div className="neo-card p-4 bg-brand-cyan border-2 border-neo-border shadow-[4px_4px_0px_#1A1A1A]">
+          <div className="flex items-center gap-3 mb-3 border-b-2 border-neo-border pb-2">
+            <Clock size={20} strokeWidth={3} />
             <h4 className="font-black text-sm">أداء الكاشير</h4>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4 pt-1">
             <div>
-              <p className="text-xs font-bold opacity-70">متوسط الوقت</p>
-              <p className="font-black">١:٤٥ دقيقة</p>
+              <p className="text-xs font-black text-gray-800">متوسط الوقت</p>
+              <p className="font-black text-lg">١:٤٥ دقيقة</p>
             </div>
             <div>
-              <p className="text-xs font-bold opacity-70">المعاملات اليوم</p>
-              <p className="font-black">٤٨ طلب</p>
+              <p className="text-xs font-black text-gray-800">المعاملات اليوم</p>
+              <p className="font-black text-lg">٤٨ طلب</p>
             </div>
           </div>
         </div>

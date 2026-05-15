@@ -83,3 +83,14 @@ export const weeklyRatings = [
   { day: "خميس", rating: 4.9 },
   { day: "جمعة", rating: 4.4 },
 ];
+
+export const customersData = [
+  { id: 1, name: "أحمد محمد", number: "0501234567", orders: 15, totalSpent: 1250, lastVisit: "2023-10-25" },
+  { id: 2, name: "سارة أحمد", number: "0559876543", orders: 8, totalSpent: 840, lastVisit: "2023-10-24" },
+  { id: 3, name: "خالد عبدالله", number: "0533334444", orders: 22, totalSpent: 3400, lastVisit: "2023-10-20" },
+  { id: 4, name: "نورة سعد", number: "0509998888", orders: 5, totalSpent: 450, lastVisit: "2023-10-18" },
+  { id: 5, name: "فهد العلي", number: "0566667777", orders: 12, totalSpent: 1500, lastVisit: "2023-10-26" },
+  { id: 6, name: "ريم الخالد", number: "0544445555", orders: 3, totalSpent: 210, lastVisit: "2023-10-15" },
+  { id: 7, name: "عبدالرحمن فهد", number: "0501112222", orders: 45, totalSpent: 6200, lastVisit: "2023-10-27" },
+  { id: 8, name: "مها العتيبي", number: "0555556666", orders: 1, totalSpent: 75, lastVisit: "2023-10-27" }
+];
