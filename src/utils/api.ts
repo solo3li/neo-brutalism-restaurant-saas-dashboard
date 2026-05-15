@@ -10,7 +10,7 @@ import {
   DashboardStats 
 } from '../types/api';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://209.38.238.175:5109/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

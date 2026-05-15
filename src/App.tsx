@@ -36,7 +36,7 @@ function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="neo-card bg-gradient-to-l from-brand-yellow via-brand-orange to-brand-pink p-6 relative overflow-hidden">
+      <div className="neo-card bg-brand-yellow p-6 relative overflow-hidden">
         <div className="relative z-10">
           <h2 className="text-2xl font-black text-neo-text">
             صباح الخير، {userName}! ☀️

@@ -101,15 +101,15 @@ export function BranchesPage() {
                 </div>
                 <div>
                   <h3 className="font-black text-lg">{branch.name}</h3>
-                  <p className="text-sm font-bold text-gray-500">{branch.address}</p>
+                  <p className="text-sm font-bold text-neo-text/60">{branch.address}</p>
                 </div>
               </div>
               <StatusPill label={branch.status} color={branch.status === "Open" ? "bg-brand-green" : "bg-brand-red text-white"} />
             </div>
             <div className="mt-5 grid grid-cols-3 gap-3">
-              <div className="rounded-xl border-2 border-neo-border bg-white p-3"><p className="text-xs font-bold text-gray-500">طلبات</p><p className="text-xl font-black">{branch.ordersCount}</p></div>
-              <div className="rounded-xl border-2 border-neo-border bg-white p-3"><p className="text-xs font-bold text-gray-500">إيرادات</p><p className="text-xl font-black">{formatCurrency(branch.revenue)}</p></div>
-              <div className="rounded-xl border-2 border-neo-border bg-white p-3"><p className="text-xs font-bold text-gray-500">تقييم</p><p className="text-xl font-black">{branch.rating}</p></div>
+              <div className="rounded-xl border-2 border-neo-border bg-white p-3"><p className="text-xs font-bold text-neo-text/60">طلبات</p><p className="text-xl font-black">{branch.ordersCount}</p></div>
+              <div className="rounded-xl border-2 border-neo-border bg-white p-3"><p className="text-xs font-bold text-neo-text/60">إيرادات</p><p className="text-xl font-black">{formatCurrency(branch.revenue)}</p></div>
+              <div className="rounded-xl border-2 border-neo-border bg-white p-3"><p className="text-xs font-bold text-neo-text/60">تقييم</p><p className="text-xl font-black">{branch.rating}</p></div>
             </div>
           </div>
         ))}
@@ -245,11 +245,11 @@ export function MenuPage() {
                   <div className="rounded-xl border-2 border-neo-border bg-white p-3 text-3xl">🍕</div>
                   <div>
                     <h4 className="font-black">{item.name}</h4>
-                    <p className="text-sm font-bold text-gray-500">{item.description}</p>
+                    <p className="text-sm font-bold text-neo-text/60">{item.description}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-8">
-                  <div><p className="text-xs font-bold text-gray-400">السعر</p><p className="font-black">{formatCurrency(item.price)}</p></div>
+                  <div><p className="text-xs font-bold text-neo-text/50">السعر</p><p className="font-black">{formatCurrency(item.price)}</p></div>
                   <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => handleDeleteItem(item.id)} className="p-2 bg-brand-red text-white rounded-lg border-2 border-neo-border">
                         <Trash2 size={16} />
@@ -358,14 +358,14 @@ export function StaffPage() {
                   <div className="text-4xl">{member.avatar}</div>
                   <div>
                     <h4 className="font-black">{member.fullName}</h4>
-                    <p className="text-sm font-bold text-gray-500">{member.role}</p>
+                    <p className="text-sm font-bold text-neo-text/60">{member.role}</p>
                   </div>
                 </div>
                 <StatusPill label={member.status} color={member.status === "Available" ? "bg-brand-green" : "bg-brand-orange"} />
               </div>
               <div className="mt-4 grid grid-cols-2 gap-2">
-                <div className="rounded-lg bg-yellow-50 p-2"><p className="text-xs font-bold text-gray-500">طلبات</p><p className="font-black">{member.ordersHandled}</p></div>
-                <div className="rounded-lg bg-yellow-50 p-2"><p className="text-xs font-bold text-gray-500">تقييم</p><p className="font-black">{member.rating}</p></div>
+                <div className="rounded-lg bg-yellow-50 p-2"><p className="text-xs font-bold text-neo-text/60">طلبات</p><p className="font-black">{member.ordersHandled}</p></div>
+                <div className="rounded-lg bg-yellow-50 p-2"><p className="text-xs font-bold text-neo-text/60">تقييم</p><p className="font-black">{member.rating}</p></div>
               </div>
             </div>
           ))}
@@ -441,22 +441,22 @@ export function OrdersPage() {
           <div key={order.id} className="neo-card p-4 bg-white flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
               <div className="neo-card-flat bg-gray-50 p-2 text-center min-w-[100px]">
-                <p className="text-[10px] font-bold text-gray-400">رقم الطلب</p>
+                <p className="text-[10px] font-bold text-neo-text/50">رقم الطلب</p>
                 <p className="font-black text-sm">{order.orderNumber}</p>
               </div>
               <div>
                 <h4 className="font-black">{order.customerName}</h4>
-                <p className="text-xs font-bold text-gray-500">{order.itemsSummary}</p>
+                <p className="text-xs font-bold text-neo-text/60">{order.itemsSummary}</p>
               </div>
             </div>
 
             <div className="flex items-center gap-8">
                <div className="text-center">
-                 <p className="text-[10px] font-bold text-gray-400">الوقت</p>
+                 <p className="text-[10px] font-bold text-neo-text/50">الوقت</p>
                  <p className="font-black text-sm">{new Date(order.createdAt).toLocaleTimeString("ar-SA", { hour: '2-digit', minute: '2-digit' })}</p>
                </div>
                <div className="text-center">
-                 <p className="text-[10px] font-bold text-gray-400">المبلغ</p>
+                 <p className="text-[10px] font-bold text-neo-text/50">المبلغ</p>
                  <p className="font-black text-sm text-brand-green">{formatCurrency(order.totalAmount)}</p>
                </div>
                <StatusPill 

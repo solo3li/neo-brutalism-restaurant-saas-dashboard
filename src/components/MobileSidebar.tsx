@@ -24,7 +24,7 @@ export default function MobileSidebar({ isOpen, onClose, activeTab, setActiveTab
 
   return (
     <div className="fixed inset-0 z-[100] lg:hidden">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose}></div>
+      <div className="absolute inset-0 bg-neo-border/50" onClick={onClose}></div>
       <div className="absolute right-0 top-0 h-full w-72 bg-neo-card border-l-2 border-neo-border shadow-lg overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b-2 border-neo-border">
           <div className="flex items-center gap-3">
