@@ -103,12 +103,26 @@ export interface DailyRating {
   rating: number;
 }
 
+export interface TopItem {
+  id: number;
+  name: string;
+  orders: number;
+  revenue: number;
+  emoji: string;
+  trend: string;
+}
+
 export interface DashboardStats {
   totalOrders: number;
   totalRevenue: number;
   activeTables: number;
   pendingOrders: number;
+  preparingOrders: number;
+  inKitchenOrders: number;
+  deliveryOrders: number;
+  completedTodayOrders: number;
   revenueData: RevenuePoint[];
   ordersPerHour: HourlyOrders[];
   weeklyRatings: DailyRating[];
+  topItems: TopItem[];
 }

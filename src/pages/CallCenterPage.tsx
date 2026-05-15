@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { 
   Search, 
   Plus, 
@@ -11,7 +11,8 @@ import {
   Store,
   ChevronDown
 } from "lucide-react";
-import { topItems, categoryData, customersData, branches } from "../data/mockData";
+import { menuApi, branchesApi, customersApi, ordersApi } from "../utils/api";
+import { MenuItem, MenuCategory, Branch, Customer } from "../types/api";
 
 const formatCurrency = (value: number) => `${value.toLocaleString("ar-SA")} ر.س`;
 
@@ -24,8 +25,14 @@ interface CartItem {
 }
 
 export default function CallCenterPage() {
+  const [items, setItems] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<MenuCategory[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
+
   // Cart & POS State
-  const [activeCategory, setActiveCategory] = useState("الكل");
+  const [activeCategory, setActiveCategory] = useState<number | "الكل">("الكل");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -35,31 +42,45 @@ export default function CallCenterPage() {
   const [customerName, setCustomerName] = useState("");
   
   const [orderType, setOrderType] = useState<"takeaway" | "delivery">("takeaway");
-  const [selectedBranch, setSelectedBranch] = useState("");
+  const [selectedBranchId, setSelectedBranchId] = useState("");
   
   // Delivery specific
   const [selectedAddress, setSelectedAddress] = useState("");
   const [newAddress, setNewAddress] = useState("");
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [customerAddresses, setCustomerAddresses] = useState<string[]>([]);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const categories = ["الكل", ...categoryData.map(c => c.name)];
-
-  const itemsWithCategories = useMemo(() => {
-    return topItems.map((item, index) => ({
-      ...item,
-      category: categoryData[index % categoryData.length].name,
-      price: 15 + (index * 5)
-    }));
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [itemsRes, catsRes, branchesRes, customersRes] = await Promise.all([
+          menuApi.getItems(),
+          menuApi.getCategories(),
+          branchesApi.getAll(),
+          customersApi.getAll()
+        ]);
+        setItems(itemsRes.data);
+        setCategories(catsRes.data);
+        setBranches(branchesRes.data);
+        setCustomers(customersRes.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
   }, []);
 
   const displayItems = useMemo(() => {
-    return itemsWithCategories.filter(item => {
-      const matchesCategory = activeCategory === "الكل" || item.category === activeCategory;
+    return items.filter(item => {
+      const matchesCategory = activeCategory === "الكل" || item.categoryId === activeCategory;
       const matchesSearch = item.name.includes(searchQuery);
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchQuery, itemsWithCategories]);
+  }, [activeCategory, searchQuery, items]);
 
   const addToCart = (item: any) => {
     setCart(prev => {
@@ -67,7 +88,7 @@ export default function CallCenterPage() {
       if (existing) {
         return prev.map(i => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
       }
-      return [...prev, { id: item.id, name: item.name, price: item.price, quantity: 1, emoji: item.emoji }];
+      return [...prev, { id: item.id, name: item.name, price: item.price, quantity: 1, emoji: "🍕" }];
     });
   };
 
@@ -83,11 +104,10 @@ export default function CallCenterPage() {
 
   const handleMobileSearch = () => {
     if (mobileNumber.length >= 8) {
-      const found = customersData.find(c => c.number.includes(mobileNumber));
+      const found = customers.find(c => c.phoneNumber.includes(mobileNumber));
       if (found) {
         setIsCustomerFound(true);
         setCustomerName(found.name);
-        // Assuming we typed customer data accurately with optional array
         const addresses = found.addresses || [];
         setCustomerAddresses(addresses);
         if (addresses.length > 0) {
@@ -109,10 +129,47 @@ export default function CallCenterPage() {
     }
   };
 
+  const handleCheckout = async () => {
+    if (cart.length === 0) return;
+    setCheckoutLoading(true);
+    try {
+      let finalCustomerId = customers.find(c => c.phoneNumber === mobileNumber)?.id;
+      
+      if (!isCustomerFound && mobileNumber.length >= 8) {
+         const newCustRes = await customersApi.create({
+            name: customerName,
+            phoneNumber: mobileNumber,
+            addresses: [newAddress]
+         });
+         finalCustomerId = newCustRes.data.id;
+      }
+
+      await ordersApi.create({
+        customerId: finalCustomerId,
+        branchId: selectedBranchId,
+        orderType: orderType === "delivery" ? "Delivery" : "Takeaway",
+        address: orderType === "delivery" ? (isAddingNewAddress ? newAddress : selectedAddress) : null,
+        items: cart.map(i => ({ menuItemId: i.id, quantity: i.quantity }))
+      });
+
+      setCart([]);
+      setMobileNumber("");
+      setIsCustomerFound(false);
+      setCustomerName("");
+      alert("تم إرسال الطلب بنجاح! 🎉");
+    } catch (err) {
+      alert("فشل إرسال الطلب.");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
   const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const deliveryFee = orderType === "delivery" ? 15 : 0;
   const cartTax = (cartTotal + deliveryFee) * 0.15;
   const cartGrandTotal = cartTotal + deliveryFee + cartTax;
+
+  if (loading) return <div className="p-20 text-center font-black text-2xl animate-pulse">جاري تحميل البيانات... 📞</div>;
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)]">
@@ -131,13 +188,19 @@ export default function CallCenterPage() {
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 w-full sm:w-auto">
+            <button
+              onClick={() => setActiveCategory("الكل")}
+              className={`neo-btn px-4 py-2 whitespace-nowrap text-sm font-black border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] transition-all ${activeCategory === "الكل" ? 'bg-brand-yellow' : 'bg-white'}`}
+            >
+              الكل
+            </button>
             {categories.map(cat => (
               <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`neo-btn px-4 py-2 whitespace-nowrap text-sm font-black border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] transition-all hover:-translate-y-[1px] hover:shadow-[3px_3px_0px_#1A1A1A] ${activeCategory === cat ? 'bg-brand-yellow' : 'bg-white'}`}
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`neo-btn px-4 py-2 whitespace-nowrap text-sm font-black border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] transition-all hover:-translate-y-[1px] hover:shadow-[3px_3px_0px_#1A1A1A] ${activeCategory === cat.id ? 'bg-brand-yellow' : 'bg-white'}`}
               >
-                {cat}
+                {cat.name} {cat.icon}
               </button>
             ))}
           </div>
@@ -153,10 +216,9 @@ export default function CallCenterPage() {
                 className="neo-card p-4 flex flex-col items-center text-center group hover:bg-brand-yellow transition-colors relative overflow-hidden"
               >
                 <div className="w-16 h-16 bg-[#FFFBEB] rounded-xl border-2 border-neo-border flex items-center justify-center text-4xl mb-3 group-hover:scale-110 transition-transform shadow-[2px_2px_0px_#1A1A1A]">
-                  {item.emoji}
+                  🍕
                 </div>
                 <h3 className="font-black text-sm mb-1 line-clamp-1 group-hover:text-neo-border">{item.name}</h3>
-                <p className="text-xs font-bold text-gray-700 mb-2">{item.category}</p>
                 <p className="font-black text-xl text-brand-blue">{formatCurrency(item.price)}</p>
                 <div className="mt-3 w-full opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="neo-btn bg-brand-green w-full py-2 text-sm font-black border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A]">إضافة</div>
@@ -179,7 +241,7 @@ export default function CallCenterPage() {
           <div className="flex gap-2 mb-2">
             <input 
               type="text" 
-              placeholder="رقم الجوال (مثال: 050123...)" 
+              placeholder="رقم الجوال" 
               value={mobileNumber}
               onChange={(e) => setMobileNumber(e.target.value)}
               className="neo-input flex-1 border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] font-bold text-left dir-ltr"
@@ -271,7 +333,6 @@ export default function CallCenterPage() {
           </div>
 
           <div className="space-y-3">
-            {/* Customer Name Input (Always needed unless found) */}
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">اسم العميل</label>
               <input 
@@ -283,25 +344,23 @@ export default function CallCenterPage() {
               />
             </div>
 
-            {/* Branch Selection (Always needed) */}
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">توجيه الطلب للفرع</label>
               <div className="relative">
                 <select 
-                  value={selectedBranch}
-                  onChange={(e) => setSelectedBranch(e.target.value)}
+                  value={selectedBranchId}
+                  onChange={(e) => setSelectedBranchId(e.target.value)}
                   className="neo-input w-full border-2 border-neo-border shadow-[2px_2px_0px_#1A1A1A] font-bold bg-[#FFFBEB] appearance-none"
                 >
                   <option value="" disabled>اختر الفرع...</option>
                   {branches.map(b => (
-                    <option key={b.id} value={b.name}>{b.name}</option>
+                    <option key={b.id} value={b.id}>{b.name}</option>
                   ))}
                 </select>
                 <ChevronDown size={16} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             </div>
 
-            {/* Delivery specific: Address */}
             {orderType === "delivery" && (
               <div className="pt-2 border-t-2 border-dashed border-neo-border">
                 <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">
@@ -376,11 +435,11 @@ export default function CallCenterPage() {
           </div>
           
           <button 
-            disabled={cart.length === 0 || !customerName || !selectedBranch || (orderType === "delivery" && !selectedAddress && !newAddress)}
-            className="neo-btn bg-brand-green w-full py-4 flex items-center justify-center gap-2 text-lg font-black border-2 border-neo-border shadow-[4px_4px_0px_#1A1A1A] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#1A1A1A] transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0px_#1A1A1A]"
+            disabled={checkoutLoading || cart.length === 0 || !customerName || !selectedBranchId || (orderType === "delivery" && !selectedAddress && !newAddress)}
+            onClick={handleCheckout}
+            className="neo-btn bg-brand-green w-full py-4 flex items-center justify-center gap-2 text-lg font-black border-2 border-neo-border shadow-[4px_4px_0px_#1A1A1A] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_#1A1A1A] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <CreditCard size={24} strokeWidth={2.5} />
-            تأكيد الطلب
+            {checkoutLoading ? "جاري المعالجة..." : <><CreditCard size={24} strokeWidth={2.5} /> تأكيد الطلب</>}
           </button>
         </div>
 

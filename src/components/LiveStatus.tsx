@@ -1,14 +1,19 @@
 import { Clock, Flame, ChefHat, Truck, CheckCircle2 } from "lucide-react";
-
-const liveStats = [
-  { label: "في الانتظار", count: 8, icon: Clock, color: "bg-brand-yellow", emoji: "⏳" },
-  { label: "جاري التحضير", count: 12, icon: Flame, color: "bg-brand-orange", emoji: "🔥" },
-  { label: "في المطبخ", count: 5, icon: ChefHat, color: "bg-brand-pink", emoji: "👨‍🍳" },
-  { label: "قيد التوصيل", count: 7, icon: Truck, color: "bg-brand-blue", emoji: "🚗" },
-  { label: "مكتملة اليوم", count: 316, icon: CheckCircle2, color: "bg-brand-green", emoji: "✅" },
-];
+import { useDashboardData } from "../hooks/useDashboardData";
 
 export default function LiveStatus() {
+  const { stats, loading } = useDashboardData();
+
+  if (loading) return <div className="neo-card p-5 animate-pulse text-center">...</div>;
+
+  const liveStats = [
+    { label: "في الانتظار", count: stats?.pendingOrders || 0, icon: Clock, color: "bg-brand-yellow", emoji: "⏳" },
+    { label: "جاري التحضير", count: stats?.preparingOrders || 0, icon: Flame, color: "bg-brand-orange", emoji: "🔥" },
+    { label: "في المطبخ", count: stats?.inKitchenOrders || 0, icon: ChefHat, color: "bg-brand-pink", emoji: "👨‍🍳" },
+    { label: "قيد التوصيل", count: stats?.deliveryOrders || 0, icon: Truck, color: "bg-brand-blue", emoji: "🚗" },
+    { label: "مكتملة اليوم", count: stats?.completedTodayOrders || 0, icon: CheckCircle2, color: "bg-brand-green", emoji: "✅" },
+  ];
+
   return (
     <div className="neo-card p-5">
       <div className="flex items-center gap-2 mb-4">

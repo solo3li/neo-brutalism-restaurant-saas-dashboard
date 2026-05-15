@@ -1,7 +1,11 @@
-import { weeklyRatings } from "../data/mockData";
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts";
+import { DailyRating } from "../types/api";
 
-export default function WeeklyRatings() {
+interface WeeklyRatingsProps {
+  data: DailyRating[];
+}
+
+export default function WeeklyRatings({ data }: WeeklyRatingsProps) {
   return (
     <div className="neo-card p-5">
       <div className="mb-4">
@@ -9,11 +13,11 @@ export default function WeeklyRatings() {
         <p className="text-sm text-gray-500 font-semibold">متوسط التقييم اليومي</p>
       </div>
       <ResponsiveContainer width="100%" height={200}>
-        <BarChart data={weeklyRatings}>
+        <BarChart data={data}>
           <XAxis dataKey="day" tick={{ fontSize: 12, fontWeight: 700 }} />
-          <YAxis domain={[4, 5]} tick={{ fontSize: 12, fontWeight: 700 }} />
+          <YAxis domain={[0, 5]} tick={{ fontSize: 12, fontWeight: 700 }} />
           <Bar dataKey="rating" radius={[8, 8, 0, 0]} strokeWidth={2} stroke="#1A1A1A">
-            {weeklyRatings.map((entry, index) => (
+            {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
                 fill={
@@ -29,7 +33,7 @@ export default function WeeklyRatings() {
         </BarChart>
       </ResponsiveContainer>
       <div className="flex items-center justify-center gap-4 mt-3">
-        <div className="flex items-center gap-1.5">
+...
           <div className="w-3 h-3 bg-brand-green rounded border-2 border-neo-border"></div>
           <span className="text-xs font-bold">ممتاز (4.8+)</span>
         </div>

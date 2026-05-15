@@ -1,15 +1,21 @@
-import { topItems } from "../data/mockData";
 import { TrendingUp, TrendingDown } from "lucide-react";
+import { useDashboardData } from "../hooks/useDashboardData";
 
 export default function TopItems() {
+  const { stats, loading } = useDashboardData();
+
+  if (loading) return <div className="neo-card p-5 animate-pulse text-center">...</div>;
+
+  const items = stats?.topItems || [];
+
   return (
     <div className="neo-card p-5">
       <div className="mb-4">
         <h3 className="font-black text-lg">🏆 الأصناف الأكثر مبيعاً</h3>
-        <p className="text-sm text-gray-500 font-semibold">هذا الشهر</p>
+        <p className="text-sm text-gray-500 font-semibold">حسب الطلبات</p>
       </div>
       <div className="space-y-3">
-        {topItems.map((item, index) => (
+        {items.map((item, index) => (
           <div
             key={item.id}
             className="flex items-center gap-3 p-3 rounded-lg border-2 border-neo-border hover:bg-yellow-50 transition-colors group"
@@ -55,6 +61,7 @@ export default function TopItems() {
             </div>
           </div>
         ))}
+        {items.length === 0 && <p className="text-center font-bold opacity-50">لا توجد مبيعات بعد</p>}
       </div>
     </div>
   );

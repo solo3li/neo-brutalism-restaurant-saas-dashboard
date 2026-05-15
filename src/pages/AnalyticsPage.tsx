@@ -4,22 +4,27 @@ import {
   ShoppingBag, DollarSign, Calendar, Filter, 
   ArrowUpRight, ArrowDownRight, RefreshCcw
 } from "lucide-react";
-import { dashboardApi } from "../utils/api";
-import { DashboardStats } from "../types/api";
+import { dashboardApi, branchesApi } from "../utils/api";
+import { DashboardStats, Branch } from "../types/api";
 import { RevenueChart, OrdersChart } from "../components/Charts";
 
 const formatCurrency = (value: number) => `${value.toLocaleString("ar-SA")} ر.س`;
 
 export function AnalyticsPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeRange, setFilter] = useState("last7days");
 
-  const fetchStats = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await dashboardApi.getStats();
-      setStats(res.data);
+      const [statsRes, branchesRes] = await Promise.all([
+        dashboardApi.getStats(),
+        branchesApi.getAll()
+      ]);
+      setStats(statsRes.data);
+      setBranches(branchesRes.data);
     } catch (err) {
       console.error(err);
     } finally {
@@ -28,7 +33,7 @@ export function AnalyticsPage() {
   };
 
   useEffect(() => {
-    fetchStats();
+    fetchData();
   }, []);
 
   if (loading) return <div className="p-20 text-center font-black text-2xl animate-pulse">جاري تحليل البيانات... 📊</div>;
@@ -46,7 +51,7 @@ export function AnalyticsPage() {
           </div>
         </div>
         <div className="flex gap-2">
-            <button onClick={fetchStats} className="neo-btn bg-white text-neo-text p-2.5">
+            <button onClick={fetchData} className="neo-btn bg-white text-neo-text p-2.5">
                 <RefreshCcw size={18} />
             </button>
             <select className="neo-input bg-white text-neo-text font-bold" value={timeRange} onChange={(e) => setFilter(e.target.value)}>
@@ -86,7 +91,7 @@ export function AnalyticsPage() {
       </div>
 
       <div className="neo-card p-6 bg-white">
-          <h3 className="font-black text-lg mb-4">أهم الفروع أداءً</h3>
+          <h3 className="font-black text-lg mb-4">أداء الفروع</h3>
           <div className="overflow-x-auto">
               <table className="w-full text-right">
                   <thead>
@@ -94,22 +99,22 @@ export function AnalyticsPage() {
                           <th className="p-3 font-black">الفرع</th>
                           <th className="p-3 font-black">الطلبات</th>
                           <th className="p-3 font-black">المبيعات</th>
-                          <th className="p-3 font-black">النمو</th>
+                          <th className="p-3 font-black">التقييم</th>
                       </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50">
-                      <tr>
-                          <td className="p-3 font-bold">فرع الرياض - السليمانية</td>
-                          <td className="p-3 font-bold">452</td>
-                          <td className="p-3 font-black text-brand-green">{formatCurrency(12400)}</td>
-                          <td className="p-3"><span className="text-green-500 flex items-center gap-1 font-bold"><ArrowUpRight size={14}/> 15%</span></td>
-                      </tr>
-                      <tr>
-                          <td className="p-3 font-bold">فرع جدة - الكورنيش</td>
-                          <td className="p-3 font-bold">385</td>
-                          <td className="p-3 font-black text-brand-green">{formatCurrency(9800)}</td>
-                          <td className="p-3"><span className="text-red-500 flex items-center gap-1 font-bold"><ArrowDownRight size={14}/> 3%</span></td>
-                      </tr>
+                      {branches.map(branch => (
+                        <tr key={branch.id}>
+                            <td className="p-3 font-bold">{branch.name}</td>
+                            <td className="p-3 font-bold">{branch.ordersCount}</td>
+                            <td className="p-3 font-black text-brand-green">{formatCurrency(branch.revenue)}</td>
+                            <td className="p-3">
+                              <span className="text-brand-yellow flex items-center gap-1 font-bold">
+                                <TrendingUp size={14}/> {branch.rating}
+                              </span>
+                            </td>
+                        </tr>
+                      ))}
                   </tbody>
               </table>
           </div>
