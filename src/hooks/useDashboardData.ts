@@ -12,9 +12,12 @@ export function useDashboardData() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      const branchId = localStorage.getItem('selectedBranchId');
+      const params = branchId ? { branchId } : {};
+      
       const [statsRes, ordersRes] = await Promise.all([
-        dashboardApi.getStats(),
-        ordersApi.getAll(),
+        dashboardApi.getStats(params),
+        ordersApi.getAll(params),
       ]);
       setStats(statsRes.data);
       setRecentOrders(ordersRes.data);

@@ -58,7 +58,7 @@ export const authApi = {
 };
 
 export const dashboardApi = {
-  getStats: () => api.get<DashboardStats>('/dashboard/stats'),
+  getStats: (params?: any) => api.get<DashboardStats>('/dashboard/stats', { params }),
 };
 
 export const branchesApi = {
@@ -69,14 +69,14 @@ export const branchesApi = {
 };
 
 export const customersApi = {
-  getAll: () => api.get<Customer[]>('/customers'),
+  getAll: (params?: any) => api.get<Customer[]>('/customers', { params }),
   create: (data: Partial<Customer>) => api.post<Customer>('/customers', data),
   update: (id: string, data: Partial<Customer>) => api.put<Customer>(`/customers/${id}`, data),
   delete: (id: string) => api.delete(`/customers/${id}`),
 };
 
 export const staffApi = {
-  getAll: () => api.get<Staff[]>('/staff'),
+  getAll: (params?: any) => api.get<Staff[]>('/staff', { params }),
   create: (data: any) => api.post<Staff>('/staff', data),
   update: (id: string, data: Partial<Staff>) => api.put<Staff>(`/staff/${id}`, data),
   delete: (id: string) => api.delete(`/staff/${id}`),
@@ -94,7 +94,7 @@ export const menuApi = {
 
 export const ordersApi = {
   create: (order: any) => api.post<Order>('/orders', order),
-  getAll: () => api.get<Order[]>('/orders'),
+  getAll: (params?: any) => api.get<Order[]>('/orders', { params }),
   updateStatus: (id: string, status: string) => api.put<Order>(`/orders/${id}/status`, { status }),
 };
 
