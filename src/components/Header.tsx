@@ -1,5 +1,4 @@
 import { Bell, Search, Menu, Store, ChevronDown } from "lucide-react";
-import { notifications } from "../data/mockData";
 import { useState, useEffect } from "react";
 import { branchesApi } from "../utils/api";
 import { Branch } from "../types/api";
@@ -15,11 +14,11 @@ export default function Header({ onToggleMobile, onBranchChange }: HeaderProps) 
   const [showBranchSwitcher, setShowBranchSwitcher] = useState(false);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
-  
-  const unreadCount = notifications.filter((n) => n.unread).length;
 
-  useEffect(() => {
-    const fetchBranches = async () => {
+  const notifications: any[] = [];
+  const unreadCount = 0;
+
+  useEffect(() => {    const fetchBranches = async () => {
       try {
         const res = await branchesApi.getAll();
         setBranches(res.data);

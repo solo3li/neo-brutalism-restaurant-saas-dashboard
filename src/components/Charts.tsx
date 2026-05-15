@@ -8,8 +8,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
   Cell,
 } from "recharts";
 import { RevenuePoint, HourlyOrders } from "../types/api";
@@ -120,56 +118,6 @@ export function OrdersChart({ data }: OrdersChartProps) {
             ))}
           </Bar>
         </BarChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-export function CategoryChart() {
-  const categoryData = [
-    { name: "مشروبات ساخنة", value: 35, color: "#FF6B35" },
-    { name: "مشروبات باردة", value: 25, color: "#448AFF" },
-    { name: "وجبات رئيسية", value: 20, color: "#00E676" },
-    { name: "حلويات", value: 12, color: "#FF69B4" },
-    { name: "مقبلات", value: 8, color: "#FFD700" },
-  ];
-
-  return (
-    <div className="neo-card p-5">
-      <div className="mb-4">
-        <h3 className="font-black text-lg">🥧 المبيعات حسب الفئة</h3>
-        <p className="text-sm text-gray-500 font-semibold">توزيع المبيعات</p>
-      </div>
-      <ResponsiveContainer width="100%" height={280}>
-        <PieChart>
-          <Pie
-            data={categoryData}
-            cx="50%"
-            cy="50%"
-            outerRadius={100}
-            innerRadius={50}
-            dataKey="value"
-            strokeWidth={3}
-            stroke="#1A1A1A"
-            label={({ name, value }) => `${name} ${value}%`}
-            labelLine={{ strokeWidth: 2, stroke: "#1A1A1A" }}
-          >
-            {categoryData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip
-            contentStyle={{
-              background: "#FFFBEB",
-              border: "2px solid #1A1A1A",
-              borderRadius: "8px",
-              boxShadow: "3px 3px 0px #1A1A1A",
-              fontWeight: 900,
-              color: "#1A1A1A"
-            }}
-            itemStyle={{ color: "#1A1A1A" }}
-          />
-        </PieChart>
       </ResponsiveContainer>
     </div>
   );
