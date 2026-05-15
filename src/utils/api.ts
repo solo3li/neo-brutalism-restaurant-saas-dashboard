@@ -50,6 +50,9 @@ export const branchesApi = {
 
 export const customersApi = {
   getAll: () => api.get<Customer[]>('/customers'),
+  create: (data: Partial<Customer>) => api.post<Customer>('/customers', data),
+  update: (id: string, data: Partial<Customer>) => api.put<Customer>(`/customers/${id}`, data),
+  delete: (id: string) => api.delete(`/customers/${id}`),
 };
 
 export const staffApi = {
