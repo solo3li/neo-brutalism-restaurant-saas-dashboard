@@ -56,7 +56,7 @@ const menuGroups = [
 
 export default function Sidebar({ activeTab, setActiveTab, collapsed, setCollapsed, onLogout }: SidebarProps) {
   const userRole = localStorage.getItem("userRole") || "Staff";
-  const isOwner = userRole === "Owner";
+  const isOwner = userRole.toLowerCase() === "owner" || userRole === "مدير عام";
 
   return (
     <aside
