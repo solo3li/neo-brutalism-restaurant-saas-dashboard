@@ -82,6 +82,26 @@ export const staffApi = {
   delete: (id: string) => api.delete(`/staff/${id}`),
 };
 
+export const employeesApi = {
+  getAll: () => api.get<Staff[]>('/employees'),
+  create: (data: any) => api.post<Staff>('/employees', data),
+  updateRoles: (id: string, data: { departmentId?: string, roles: string[] }) => 
+    api.put(`/employees/${id}/roles`, data),
+};
+
+export const departmentsApi = {
+  getAll: () => api.get<Department[]>('/departments'),
+  create: (data: { name: string }) => api.post<Department>('/departments', data),
+  delete: (id: string) => api.delete(`/departments/${id}`),
+};
+
+export const rolesApi = {
+  getAll: () => api.get<Role[]>('/roles'),
+  getPermissions: () => api.get<Permission[]>('/roles/permissions'),
+  create: (data: { name: string, departmentId: string, permissions: string[] }) => 
+    api.post<Role>('/roles', data),
+};
+
 export const menuApi = {
   getCategories: () => api.get<MenuCategory[]>('/menu/categories'),
   createCategory: (data: Partial<MenuCategory>) => api.post<MenuCategory>('/menu/categories', data),

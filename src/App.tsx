@@ -19,6 +19,8 @@ import {
   ReviewsPage,
   SettingsPage,
   StaffPage,
+  DepartmentsPage,
+  RolesPage,
 } from "./pages/ManagementPages";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
 import PosPage from "./pages/PosPage";
@@ -28,10 +30,21 @@ import AuthPage from "./pages/AuthPage";
 
 function DashboardPage() {
   const { stats, recentOrders, loading, error } = useDashboardData();
-  const userName = localStorage.getItem('userName') || "عبدالله";
 
-  if (loading) return <div className="p-20 text-center font-black text-2xl animate-pulse">جاري تحميل البيانات... 🍽️</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-brand-orange border-t-transparent rounded-full animate-spin"></div>
+          <p className="font-black text-xl animate-pulse">جاري تحميل بياناتك...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (error) return <div className="p-20 text-center font-black text-2xl text-brand-red">⚠️ {error}</div>;
+
+  const userName = localStorage.getItem("userName") || "أدمن";
 
   return (
     <div className="space-y-6">
@@ -50,29 +63,30 @@ function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats */}
-      <StatsCards stats={stats} />
-
       {/* Live Status */}
       <LiveStatus />
 
-      {/* Quick Actions */}
-      <QuickActions />
+      {/* Main Stats */}
+      <StatsCards stats={stats} />
 
-      {/* Charts Row */}
+      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RevenueChart data={stats?.revenueData || []} />
-        <OrdersChart data={stats?.ordersPerHour || []} />
+        <div className="grid grid-cols-1 gap-6">
+           <OrdersChart data={stats?.ordersPerHour || []} />
+           <WeeklyRatings data={stats?.weeklyRatings || []} />
+        </div>
       </div>
 
-      {/* Orders Table */}
-      <OrdersTable orders={recentOrders} />
-
-      {/* Bottom Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <TopItems />
-        <CategoryChart />
-        <WeeklyRatings />
+      {/* Secondary Row */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2">
+          <OrdersTable orders={recentOrders} />
+        </div>
+        <div className="space-y-6">
+          <QuickActions />
+          <TopItems />
+        </div>
       </div>
 
       {/* Branches & Staff */}
@@ -82,35 +96,6 @@ function DashboardPage() {
       </div>
     </div>
   );
-}
-
-function getPageContent(tab: string) {
-  switch (tab) {
-    case "dashboard":
-      return <DashboardPage />;
-    case "pos":
-      return <PosPage />;
-    case "callcenter":
-      return <CallCenterPage />;
-    case "orders":
-      return <OrdersPage />;
-    case "menu":
-      return <MenuPage />;
-    case "branches":
-      return <BranchesPage />;
-    case "staff":
-      return <StaffPage />;
-    case "customers":
-      return <CustomersPage />;
-    case "analytics":
-      return <AnalyticsPage />;
-    case "reviews":
-      return <ReviewsPage />;
-    case "settings":
-      return <SettingsPage />;
-    default:
-      return <DashboardPage />;
-  }
 }
 
 export default function App() {
@@ -137,7 +122,7 @@ export default function App() {
       // Clean up URL and update state
       window.history.replaceState({}, document.title, window.location.pathname);
       setIsLoggedIn(true);
-      return; // Stop here and let the next cycle handle redirection if needed
+      return;
     }
 
     // 2. Force redirection from main domain to subdomain
@@ -165,27 +150,28 @@ export default function App() {
   return (
     <div className="min-h-screen bg-neo-bg font-cairo" dir="rtl">
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block">
-        <Sidebar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          collapsed={sidebarCollapsed}
-          setCollapsed={setSidebarCollapsed}
-          onLogout={handleLogout}
-        />
-      </div>
+      <Sidebar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        collapsed={sidebarCollapsed}
+        setCollapsed={setSidebarCollapsed}
+        onLogout={handleLogout}
+      />
 
       {/* Mobile Sidebar */}
       <MobileSidebar
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          setMobileMenuOpen(false);
+        }}
       />
 
       {/* Main Content */}
       <main
-        className={`transition-all duration-300 ${
+        className={`transition-all duration-300 min-h-screen ${
           sidebarCollapsed ? "lg:mr-20" : "lg:mr-64"
         }`}
       >
@@ -193,19 +179,59 @@ export default function App() {
           sidebarCollapsed={sidebarCollapsed}
           onToggleMobile={() => setMobileMenuOpen(true)}
         />
-        <div className="p-4 md:p-6">{getPageContent(activeTab)}</div>
 
-        {/* Footer */}
-        <footer className="p-6 text-center border-t-2 border-neo-border mt-8">
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <span className="text-2xl">🍽️</span>
-            <span className="font-black">فودي بورد</span>
-            <span className="text-gray-400 font-bold">|</span>
-            <span className="text-sm text-gray-500 font-bold">
-              نظام إدارة المطاعم والكافيهات © {new Date().getFullYear()}
+        <div className="p-6 pb-24">
+          <div className="max-w-[1600px] mx-auto">
+            {(() => {
+              switch (activeTab) {
+                case "dashboard":
+                  return <DashboardPage />;
+                case "pos":
+                  return <PosPage />;
+                case "callcenter":
+                  return <CallCenterPage />;
+                case "orders":
+                  return <OrdersPage />;
+                case "menu":
+                  return <MenuPage />;
+                case "branches":
+                  return <BranchesPage />;
+                case "departments":
+                  return <DepartmentsPage />;
+                case "roles":
+                  return <RolesPage />;
+                case "staff":
+                  return <StaffPage />;
+                case "customers":
+                  return <CustomersPage />;
+                case "analytics":
+                  return <AnalyticsPage />;
+                case "reviews":
+                  return <ReviewsPage />;
+                case "settings":
+                  return <SettingsPage />;
+                default:
+                  return <DashboardPage />;
+              }
+            })()}
+          </div>
+        </div>
+
+        {/* Global Footer */}
+        <footer className="p-6 border-t-2 border-neo-border bg-white mt-12 text-center">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <div className="w-10 h-10 bg-brand-orange neo-card-flat flex items-center justify-center text-xl">
+              🍽️
+            </div>
+            <p className="font-black text-neo-text">
+              فودي بورد (FoodyBoard)
+            </p>
+            <span className="hidden md:block w-1.5 h-1.5 bg-neo-border rounded-full opacity-20"></span>
+            <span className="text-xs font-bold text-neo-text/40">
+              جميع الحقوق محفوظة © {new Date().getFullYear()}
             </span>
           </div>
-          <p className="text-xs text-gray-400 font-semibold mt-1">
+          <p className="text-xs text-neo-text/40 font-semibold mt-1">
             صُنع بـ ❤️ لأصحاب المطاعم والكافيهات
           </p>
         </footer>

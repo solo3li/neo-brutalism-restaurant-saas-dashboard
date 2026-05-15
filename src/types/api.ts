@@ -4,6 +4,7 @@ export interface LoginResponse {
     id: string;
     name: string;
     subdomain: string;
+    loginUrl: string;
   };
 }
 
@@ -35,6 +36,30 @@ export interface Staff {
   rating: number;
   status: string;
   avatar: string;
+  email?: string;
+  departmentId?: string;
+  departmentName?: string;
+  roles?: string[];
+}
+
+export interface Department {
+  id: string;
+  name: string;
+  employeeCount: number;
+}
+
+export interface Role {
+  id: string;
+  name: string;
+  departmentId: string;
+  departmentName: string;
+  permissions: string[];
+}
+
+export interface Permission {
+  name: string;
+  code: string;
+  group: string;
 }
 
 export interface MenuCategory {
