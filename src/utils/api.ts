@@ -74,7 +74,8 @@ export const menuApi = {
 
 export const ordersApi = {
   create: (order: any) => api.post<Order>('/orders', order),
-  getAll: () => api.get<Order[]>('/orders'), // If implemented
+  getAll: () => api.get<Order[]>('/orders'),
+  updateStatus: (id: string, status: string) => api.put<Order>(`/orders/${id}/status`, { status }),
 };
 
 export default api;
