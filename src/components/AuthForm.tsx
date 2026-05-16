@@ -157,8 +157,20 @@ export default function AuthForm({ onLogin }: AuthFormProps) {
           <form onSubmit={handleVerifyMfa} className="space-y-4">
             <div className="space-y-1">
               <label className="text-xs font-black flex items-center gap-2 uppercase tracking-wider text-neo-text/60">
+                <Mail size={14} />
+                البريد الإلكتروني
+              </label>
+              <input
+                disabled
+                type="email"
+                className="neo-input w-full bg-gray-100 cursor-not-allowed opacity-70"
+                value={mfaEmail}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-black flex items-center gap-2 uppercase tracking-wider text-neo-text/60">
                 <Lock size={14} />
-                رمز التحقق
+                رمز التحقق (Authenticator)
               </label>
               <input
                 required
@@ -169,6 +181,9 @@ export default function AuthForm({ onLogin }: AuthFormProps) {
                 onChange={(e) => setMfaCode(e.target.value)}
                 maxLength={6}
               />
+              <p className="text-xs text-neo-text/60 font-bold mt-2">
+                ملاحظة: يتم إنشاء رمز QR الخاص بتطبيق Authenticator من قبل مدير المطعم.
+              </p>
             </div>
             <button
               disabled={loading}

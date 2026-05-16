@@ -1,8 +1,9 @@
 import { TrendingUp, TrendingDown } from "lucide-react";
-import { useDashboardData } from "../hooks/useDashboardData";
+import { useDashboardStore } from "../store/useDashboardStore";
+import { TopItem } from "../types/api";
 
 export default function TopItems() {
-  const { stats, loading } = useDashboardData();
+  const { stats, loading } = useDashboardStore();
 
   if (loading) return <div className="neo-card p-5 animate-pulse text-center">...</div>;
 
@@ -15,7 +16,7 @@ export default function TopItems() {
         <p className="text-sm text-gray-500 font-semibold">حسب الطلبات</p>
       </div>
       <div className="space-y-3">
-        {items.map((item, index) => (
+        {items.map((item: TopItem, index: number) => (
           <div
             key={item.id}
             className="flex items-center gap-3 p-3 rounded-lg border-2 border-neo-border hover:bg-yellow-50 transition-colors group"

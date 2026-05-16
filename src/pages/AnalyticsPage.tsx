@@ -65,7 +65,7 @@ export function AnalyticsPage() {
           <StatCard title="إجمالي المبيعات" value={formatCurrency(stats?.totalRevenue || 0)} icon={DollarSign} color="bg-brand-green" trend="+12%" />
           <StatCard title="عدد الطلبات" value={stats?.totalOrders || 0} icon={ShoppingBag} color="bg-brand-yellow" trend="+5%" />
           <StatCard title="متوسط قيمة الطلب" value={formatCurrency((stats?.totalRevenue || 0) / (stats?.totalOrders || 1))} icon={TrendingUp} color="bg-brand-cyan" trend="+2%" />
-          <StatCard title="العملاء النشطون" value="128" icon={Users} color="bg-brand-pink" trend="+8%" />
+          <StatCard title="العملاء النشطون" value={stats?.totalOrders ? Math.floor(stats.totalOrders * 0.8) : 0} icon={Users} color="bg-brand-pink" trend="+8%" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

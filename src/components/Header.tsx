@@ -2,6 +2,7 @@ import { Bell, Search, Menu, Store, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { branchesApi } from "../utils/api";
 import { Branch } from "../types/api";
+import { useDashboardStore } from "../store/useDashboardStore";
 
 interface HeaderProps {
   sidebarCollapsed: boolean;
@@ -15,10 +16,12 @@ export default function Header({ onToggleMobile, onBranchChange }: HeaderProps) 
   const [branches, setBranches] = useState<Branch[]>([]);
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
 
-  const notifications: any[] = [];
-  const unreadCount = 0;
+  const { stats } = useDashboardStore();
+  const notifications = stats?.notifications || [];
+  const unreadCount = notifications.filter(n => n.unread).length;
 
-  useEffect(() => {    const fetchBranches = async () => {
+  useEffect(() => {
+    const fetchBranches = async () => {
       try {
         const res = await branchesApi.getAll();
         setBranches(res.data);
@@ -49,109 +52,125 @@ export default function Header({ onToggleMobile, onBranchChange }: HeaderProps) 
   };
 
   return (
-    <header
-      className={`sticky top-0 z-40 bg-neo-bg/80 backdrop-blur-md border-b-2 border-neo-border px-6 py-4 transition-all duration-300`}
-    >
-      <div className="flex items-center justify-between gap-4">
-        {/* Mobile menu toggle */}
-        <button
-          onClick={onToggleMobile}
-          className="lg:hidden neo-btn bg-brand-yellow p-2"
-        >
-          <Menu size={22} />
-        </button>
+    <header className="sticky top-0 z-30 flex h-20 items-center gap-4 bg-white px-4 border-b-4 border-neo-border lg:px-8">
+      {/* Mobile Toggle */}
+      <button
+        onClick={onToggleMobile}
+        className="neo-btn p-2 lg:hidden bg-brand-yellow"
+      >
+        <Menu size={24} strokeWidth={3} />
+      </button>
 
+      {/* Page Title / Search */}
+      <div className="hidden lg:flex items-center gap-4 flex-1">
+        <div className="relative group w-96">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-neo-border transition-colors group-focus-within:text-brand-orange" size={20} strokeWidth={3} />
+          <input
+            type="text"
+            placeholder="بحث..."
+            className="neo-input w-full pr-10 focus:ring-0 focus:border-brand-orange"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 lg:gap-5">
         {/* Branch Switcher */}
-        <div className="relative hidden md:block">
+        <div className="relative">
           <button
             onClick={() => setShowBranchSwitcher(!showBranchSwitcher)}
-            className="neo-btn bg-brand-orange px-4 py-2 flex items-center gap-3 min-w-[200px]"
+            className="neo-btn h-11 px-4 bg-[#FFFBEB] flex items-center gap-2 font-black text-sm"
           >
-            <Store size={18} />
-            <div className="text-right flex-1">
-              <p className="text-[10px] font-black opacity-70 leading-none">الفرع الحالي</p>
-              <p className="font-black text-sm">{selectedBranch?.name || "جميع الفروع"}</p>
-            </div>
-            <ChevronDown size={16} className={`transition-transform ${showBranchSwitcher ? 'rotate-180' : ''}`} />
+            <Store size={18} strokeWidth={3} />
+            <span className="hidden sm:inline">{selectedBranch?.name || "جميع الفروع"}</span>
+            <ChevronDown size={16} strokeWidth={3} className={`transition-transform ${showBranchSwitcher ? 'rotate-180' : ''}`} />
           </button>
 
           {showBranchSwitcher && (
-            <div className="absolute top-full right-0 mt-2 w-64 neo-card bg-white p-2 z-50">
+            <div className="absolute left-0 mt-3 w-64 neo-card bg-white p-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
               <button
                 onClick={() => handleBranchSelect(null)}
-                className={`w-full text-right p-3 rounded-lg font-bold hover:bg-gray-50 transition-all ${!selectedBranch ? 'bg-brand-orange text-neo-text' : ''}`}
+                className={`w-full text-right p-3 rounded-lg font-bold text-sm transition-colors mb-1 ${!selectedBranch ? 'bg-brand-yellow' : 'hover:bg-yellow-50'}`}
               >
                 🌍 جميع الفروع
               </button>
-              <div className="h-px bg-neo-border/10 my-2"></div>
-              {branches.map((branch) => (
-                <button
-                  key={branch.id}
-                  onClick={() => handleBranchSelect(branch)}
-                  className={`w-full text-right p-3 rounded-lg font-bold hover:bg-gray-50 transition-all ${selectedBranch?.id === branch.id ? 'bg-brand-orange text-neo-text' : ''}`}
-                >
-                  🏪 {branch.name}
-                </button>
-              ))}
+              <div className="max-h-64 overflow-y-auto">
+                {branches.map(branch => (
+                  <button
+                    key={branch.id}
+                    onClick={() => handleBranchSelect(branch)}
+                    className={`w-full text-right p-3 rounded-lg font-bold text-sm transition-colors mb-1 ${selectedBranch?.id === branch.id ? 'bg-brand-yellow' : 'hover:bg-yellow-50'}`}
+                  >
+                    📍 {branch.name}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </div>
 
-        {/* Search */}
-        <div className="flex-1 max-w-xs">
-          <div className="relative">
-            <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-neo-text/40" />
-            <input
-              type="text"
-              placeholder="بحث..."
-              className="neo-input w-full pr-10 text-sm"
-            />
-          </div>
+        {/* Notifications */}
+        <div className="relative">
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            className={`neo-btn p-2.5 relative transition-colors ${showNotifications ? 'bg-brand-orange text-white' : 'bg-white'}`}
+          >
+            <Bell size={22} strokeWidth={3} />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -left-1 w-6 h-6 bg-brand-red text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-neo-border animate-bounce">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {showNotifications && (
+            <div className="absolute left-0 mt-3 w-80 sm:w-96 neo-card bg-white overflow-hidden animate-in fade-in slide-in-from-top-2">
+              <div className="p-4 border-b-2 border-neo-border bg-[#FFFBEB] flex items-center justify-between">
+                <h3 className="font-black">الإشعارات</h3>
+                <span className="neo-badge bg-brand-yellow text-[10px]">{unreadCount} جديد</span>
+              </div>
+              <div className="max-h-[400px] overflow-y-auto">
+                {notifications.length > 0 ? (
+                  notifications.map((n) => (
+                    <div
+                      key={n.id}
+                      className={`p-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors flex gap-4 ${n.unread ? 'bg-yellow-50/50' : ''}`}
+                    >
+                      <div className={`w-10 h-10 rounded-xl border-2 border-neo-border flex items-center justify-center text-xl shadow-[2px_2px_0px_#1A1A1A] flex-shrink-0 ${
+                        n.type === 'order' ? 'bg-brand-green' : 
+                        n.type === 'warning' ? 'bg-brand-orange' : 
+                        n.type === 'review' ? 'bg-brand-yellow' : 'bg-brand-blue'
+                      }`}>
+                        {n.type === 'order' ? '🛒' : n.type === 'warning' ? '⚠️' : n.type === 'review' ? '⭐' : 'ℹ️'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-neo-text leading-snug">{n.text}</p>
+                        <p className="text-[10px] font-black text-neo-text/40 mt-1 uppercase">{n.time}</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-10 text-center text-neo-text/40 font-bold">
+                    لا توجد إشعارات حالياً
+                  </div>
+                )}
+              </div>
+              <button className="w-full p-3 bg-gray-50 text-xs font-black hover:bg-gray-100 border-t-2 border-neo-border">
+                عرض جميع الإشعارات
+              </button>
+            </div>
+          )}
         </div>
 
-        {/* Actions */}
-        <div className="flex items-center gap-3">
-          {/* Notifications */}
-          <div className="relative">
-            <button
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="neo-btn bg-brand-yellow p-2.5 relative"
-            >
-              <Bell size={20} />
-              {unreadCount > 0 && (
-                <span className="absolute -top-2 -left-2 w-6 h-6 bg-brand-red text-white text-xs font-black rounded-full flex items-center justify-center border border-neo-border animate-pulse-glow">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-
-            {showNotifications && (
-              <div className="absolute left-0 top-full mt-2 w-80 neo-card bg-white p-0 overflow-hidden z-50">
-                <div className="p-3 bg-brand-yellow border-b-2 border-neo-border">
-                  <h3 className="font-black">الإشعارات</h3>
-                </div>
-                {notifications.map((notif) => (
-                  <div
-                    key={notif.id}
-                    className={`p-3 border-b-2 border-neo-border/5 hover:bg-gray-50 cursor-pointer ${
-                      notif.unread ? "bg-yellow-50" : ""
-                    }`}
-                  >
-                    <p className="text-sm font-bold">{notif.text}</p>
-                    <p className="text-xs text-neo-text/40 font-semibold mt-1">{notif.time}</p>
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* User Profile */}
+        <div className="flex items-center gap-3 pr-2 border-r-2 border-neo-border mr-1">
+          <div className="hidden sm:block text-left">
+            <p className="text-sm font-black leading-none">{localStorage.getItem("userName") || "أدمن"}</p>
+            <p className="text-[10px] font-black text-brand-orange mt-1 uppercase tracking-tighter">
+              {localStorage.getItem("userRole") || "مدير النظام"}
+            </p>
           </div>
-
-          {/* Profile */}
-          <div className="neo-btn bg-brand-green px-3 py-2 flex items-center gap-2 cursor-pointer">
-            <span className="text-xl">🤵</span>
-            <div className="hidden sm:block">
-              <p className="font-black text-sm leading-tight">{localStorage.getItem("userName") || "مدير النظام"}</p>
-              <p className="text-[10px] font-black text-brand-orange uppercase leading-none mt-0.5">{localStorage.getItem("userRole")}</p>
-            </div>
+          <div className="w-11 h-11 bg-brand-cyan neo-card-flat flex items-center justify-center text-2xl border-2 border-neo-border overflow-hidden">
+            👤
           </div>
         </div>
       </div>

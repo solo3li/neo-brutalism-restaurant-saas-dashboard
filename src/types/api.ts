@@ -106,6 +106,14 @@ export interface DailyRating {
   rating: number;
 }
 
+export interface Notification {
+  id: number;
+  text: string;
+  time: string;
+  type: "order" | "warning" | "review" | "success" | "info";
+  unread: boolean;
+}
+
 export interface TopItem {
   id: number;
   name: string;
@@ -128,4 +136,5 @@ export interface DashboardStats {
   ordersPerHour: HourlyOrders[];
   weeklyRatings: DailyRating[];
   topItems: TopItem[];
+  notifications: Notification[];
 }

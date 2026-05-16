@@ -11,7 +11,8 @@ import LiveStatus from "./components/LiveStatus";
 import QuickActions from "./components/QuickActions";
 import WeeklyRatings from "./components/WeeklyRatings";
 import MobileSidebar from "./components/MobileSidebar";
-import { useDashboardData } from "./hooks/useDashboardData";
+import { useAuthStore } from "./store/useAuthStore";
+import { useDashboardStore } from "./store/useDashboardStore";
 import {
   BranchesPage,
   MenuPage,
@@ -29,9 +30,16 @@ import CustomersPage from "./pages/CustomersPage";
 import LandingPage from "./pages/LandingPage";
 
 function DashboardPage() {
-  const { stats, recentOrders, loading, error } = useDashboardData();
+  const { stats, recentOrders, loading, error, fetchDashboardData, initSignalR } = useDashboardStore();
+  const selectedBranchId = localStorage.getItem("selectedBranchId");
 
-  if (loading) {
+  useEffect(() => {
+    fetchDashboardData(selectedBranchId);
+    const stopSignalR = initSignalR();
+    return () => stopSignalR();
+  }, [selectedBranchId, fetchDashboardData, initSignalR]);
+
+  if (loading && !stats) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="flex flex-col items-center gap-4">
@@ -99,10 +107,10 @@ function DashboardPage() {
 }
 
 export default function App() {
+  const { isLoggedIn, checkAuth, login, logout } = useAuthStore();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
 
   // Multi-tenant redirection and session capture
   useEffect(() => {
@@ -113,15 +121,17 @@ export default function App() {
     // 1. Capture session from URL (sent from central login)
     const tokenFromUrl = params.get("token");
     if (tokenFromUrl) {
-      localStorage.setItem("token", tokenFromUrl);
-      localStorage.setItem("tenantId", params.get("tenantId") || "");
-      localStorage.setItem("tenantSubdomain", params.get("tenantSubdomain") || "");
-      localStorage.setItem("userName", params.get("userName") || "");
-      localStorage.setItem("userRole", params.get("userRole") || "");
+       login({
+         token: tokenFromUrl,
+         tenant: { 
+           id: params.get("tenantId") || "", 
+           subdomain: params.get("tenantSubdomain") || "", 
+           name: params.get("userName") || "" 
+         }
+       });
       
-      // Clean up URL and update state
+      // Clean up URL
       window.history.replaceState({}, document.title, window.location.pathname);
-      setIsLoggedIn(true);
       return;
     }
 
@@ -132,23 +142,25 @@ export default function App() {
     if (token && storedSubdomain && (hostname === baseDomain || hostname === "localhost")) {
        if (!hostname.startsWith(storedSubdomain)) {
           window.location.replace(`http://${storedSubdomain}.${baseDomain}.sslip.io`);
+          return;
        }
     }
-  }, []);
+
+    checkAuth();
+  }, [login, checkAuth]);
 
   if (!isLoggedIn) {
-    return <LandingPage onLogin={() => setIsLoggedIn(true)} />;
+    return <LandingPage onLogin={() => {}} />;
   }
 
   const handleLogout = () => {
-    localStorage.clear();
-    setIsLoggedIn(false);
+    logout();
     // Redirect to central login
     window.location.href = "http://209.38.238.175";
   };
 
   return (
-    <div className="min-h-screen bg-neo-bg font-cairo" dir="rtl">
+    <div className="min-h-screen bg-neo-bg font-cairo text-neo-text" dir="rtl">
       {/* Desktop Sidebar */}
       <Sidebar
         activeTab={activeTab}
@@ -178,6 +190,7 @@ export default function App() {
         <Header
           sidebarCollapsed={sidebarCollapsed}
           onToggleMobile={() => setMobileMenuOpen(true)}
+          onBranchChange={() => {}} // Store will handle fetch on selection change in Header if we wanted, but selection is in Header's local state
         />
 
         <div className="p-6 pb-24">

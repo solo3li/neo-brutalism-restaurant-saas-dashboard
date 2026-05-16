@@ -1,8 +1,8 @@
 import { Clock, Flame, ChefHat, Truck, CheckCircle2 } from "lucide-react";
-import { useDashboardData } from "../hooks/useDashboardData";
+import { useDashboardStore } from "../store/useDashboardStore";
 
 export default function LiveStatus() {
-  const { stats, loading } = useDashboardData();
+  const { stats, loading } = useDashboardStore();
 
   if (loading) return <div className="neo-card p-5 animate-pulse text-center">...</div>;
 
